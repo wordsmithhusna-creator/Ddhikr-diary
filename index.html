@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style></head><body>
+<title>Dhikr Diary</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one phone-width column (max 520px), scrolling content, fixed 5-tab bar at the bottom, bottom sheets for forms and reminders. */
+:root{
+  --bg:#EDF3EF; --surface:#FFFFFF; --surface-2:#E4EDE8; --ink:#10241B; --muted:#58695F; --line:#D3DFD8;
+  --green:#0F5132; --on-green:#FFFFFF; --green-soft:#D6EADF;
+  --gold:#9A6E14; --gold-soft:#F2E5C2; --crit:#B3402F;
+  --shadow:0 1px 2px rgba(16,36,27,.06),0 8px 22px rgba(16,36,27,.07);
+  --overlay:rgba(8,20,14,.5);
+  --f-body:'Hind Siliguri',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-ar:'Amiri','Traditional Arabic','Noto Naskh Arabic',serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A1510; --surface:#12231B; --surface-2:#1A3026; --ink:#E5EFE9; --muted:#97AB9F; --line:#24402F;
+  --green:#62C79A; --on-green:#07150E; --green-soft:#1B3A2C;
+  --gold:#E3B95A; --gold-soft:#3A3012; --crit:#F08A78;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px rgba(0,0,0,.35); --overlay:rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1510; --surface:#12231B; --surface-2:#1A3026; --ink:#E5EFE9; --muted:#97AB9F; --line:#24402F;
+  --green:#62C79A; --on-green:#07150E; --green-soft:#1B3A2C;
+  --gold:#E3B95A; --gold-soft:#3A3012; --crit:#F08A78;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px rgba(0,0,0,.35); --overlay:rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+html{-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.55 var(--f-body);
+  padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+h1,h2,h3,p{margin:0}
+.app{max-width:520px;margin:0 auto;padding:20px 0 112px;min-width:0}
+.hero{padding:6px 2px 16px}
+.eyebrow{color:var(--gold);font-weight:600;font-size:14px}
+.hero h1{font-size:30px;line-height:1.25;font-weight:700;text-wrap:balance}
+.sub{color:var(--muted);font-size:15px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border-radius:18px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.card h2{font-size:16px;font-weight:600;margin-bottom:10px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 18px;border-radius:12px;font-weight:600;background:var(--surface-2);color:var(--ink)}
+.btn.primary{background:var(--green);color:var(--on-green)}
+.btn.danger{color:var(--crit)}
+.btn.block{width:100%}
+.btn:focus-visible,.chip:focus-visible,.tab:focus-visible,.ck:focus-visible,.cell:focus-visible,.sw:focus-visible,.tap:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.chip{min-height:40px;padding:0 16px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-weight:500;white-space:nowrap;flex:0 0 auto}
+.chip.on{background:var(--green);color:var(--on-green);box-shadow:none}
+.scroller{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:none}
+.scroller::-webkit-scrollbar{display:none}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--surface-2);border-radius:12px;padding:3px;gap:3px}
+.seg button{min-height:38px;border-radius:9px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.ring{display:block}.rt{fill:none;stroke:var(--line)}.rf{fill:none;stroke:var(--green);stroke-linecap:round;transition:stroke-dashoffset .3s}
+.today{display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center}
+.ringbox{position:relative;width:96px;height:96px}
+.ringbox .ring{width:96px;height:96px}
+.ringbox b{position:absolute;inset:0;display:grid;place-items:center;font-size:22px;color:var(--green)}
+.next{margin-top:8px;padding:10px 12px;border-radius:12px;background:var(--gold-soft);font-size:14px}
+.next b{font-weight:600}
+.pray{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.pray button{min-height:64px;border-radius:14px;background:var(--surface-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:600;font-size:14px}
+.pray button span{font-size:12px;color:var(--muted);font-weight:400}
+.pray button.on{background:var(--green);color:var(--on-green)}
+.pray button.on span{color:var(--on-green);opacity:.85}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.task{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.task:first-child{border-top:0}
+.ck{flex:0 0 28px;width:28px;height:28px;border-radius:9px;box-shadow:inset 0 0 0 2px var(--line);display:grid;place-items:center}
+.ck[aria-pressed="true"]{background:var(--green);box-shadow:none;color:var(--on-green)}
+.ck svg{width:16px;height:16px;opacity:0}.ck[aria-pressed="true"] svg{opacity:1}
+.tx{flex:1;min-width:0;text-align:left}
+.tt{display:block;font-weight:500;overflow-wrap:anywhere}
+.task.done .tt{text-decoration:line-through;color:var(--muted)}
+.meta{display:block;font-size:13px;color:var(--muted)}
+.tag{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--gold-soft);color:var(--gold)}
+.tag.late{background:transparent;color:var(--crit);box-shadow:inset 0 0 0 1px var(--crit)}
+.banner{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:14px;background:var(--gold-soft);font-size:14px}
+.banner button{font-weight:600;color:var(--gold);white-space:nowrap;min-height:36px}
+.counter{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.ar{font-family:var(--f-ar);font-size:34px;line-height:1.9;text-wrap:balance;max-width:100%}
+.mean{color:var(--muted);font-size:14px;text-wrap:balance}
+.tap{position:relative;width:196px;height:196px;border-radius:50%;background:var(--green-soft);margin:10px 0 6px;display:grid;place-items:center;transition:transform .08s}
+.tap:active{transform:scale(.96)}
+.tap .ring{position:absolute;inset:0;width:100%;height:100%}
+.tap .in{display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.tap .num{font-size:56px;font-weight:700;color:var(--green);font-feature-settings:"tnum"}
+.tap .of{font-size:14px;color:var(--muted);margin-top:4px}
+.list{display:flex;flex-direction:column}
+.li{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.li:first-child{border-top:0}
+.li .nm{font-weight:600;text-align:left;overflow-wrap:anywhere}
+.bar-t{grid-column:1/-1;height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar-t i{display:block;height:100%;background:var(--green);border-radius:99px}
+.sw{width:50px;height:30px;border-radius:99px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line);position:relative;flex:0 0 auto}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--muted);transition:transform .18s}
+.sw[aria-pressed="true"]{background:var(--green)}
+.sw[aria-pressed="true"]::after{transform:translateX(20px);background:var(--on-green)}
+.calhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.calhead h2{margin:0;font-size:18px;text-align:center;flex:1}
+.calhead .sub{font-size:13px;display:block;font-weight:400}
+.round{width:44px;height:44px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;font-size:20px}
+.grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dow{text-align:center;font-size:12px;color:var(--muted);padding-bottom:2px}
+.cell{aspect-ratio:1/1.05;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-weight:600;position:relative;background:var(--surface-2);min-width:0}
+.cell small{font-size:10px;font-weight:400;color:var(--muted);line-height:1}
+.cell.l1{background:color-mix(in srgb,var(--green) 22%,var(--surface))}
+.cell.l2{background:color-mix(in srgb,var(--green) 42%,var(--surface))}
+.cell.l3{background:color-mix(in srgb,var(--green) 68%,var(--surface))}
+.cell.l4{background:var(--green);color:var(--on-green)}
+.cell.l4 small,.cell.l3 small{color:inherit;opacity:.8}
+.cell.fri b{color:var(--gold)}.cell.l4.fri b{color:var(--on-green)}
+.cell.today{box-shadow:inset 0 0 0 2px var(--gold)}
+.cell.void{background:transparent;pointer-events:none}
+.cell.future{opacity:.5}
+.cell .dot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.legend{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:12px}
+.legend i{width:16px;height:16px;border-radius:5px;display:block}
+.chart{width:100%;height:auto;display:block}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .axis{fill:var(--muted);font-size:10px;font-family:var(--f-body)}
+.chart .val{fill:var(--ink);font-size:10px;font-weight:600;font-family:var(--f-body)}
+.chart .bar{fill:color-mix(in srgb,var(--green) 40%,var(--surface))}
+.chart .bar.cur{fill:var(--green)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--surface-2);border-radius:14px;padding:12px}
+.tile b{display:block;font-size:24px;line-height:1.2;color:var(--green)}
+.tile span{font-size:13px;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label,.lbl{font-size:13px;color:var(--muted);font-weight:500}
+input[type=text],input[type=number],input[type=time],input[type=date],select,textarea{width:100%;min-height:44px;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+textarea{min-height:84px;font-size:13px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check{display:flex;align-items:center;gap:10px;min-height:44px}
+.check input{width:22px;height:22px;accent-color:var(--green)}
+.setrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.setrow:first-of-type{border-top:0}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper b{min-width:28px;text-align:center}
+.note{font-size:13px;color:var(--muted);background:var(--surface-2);padding:10px 12px;border-radius:12px;margin-top:10px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+  padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.tabs .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.tab{min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;color:var(--muted);border-radius:12px;font-weight:500}
+.tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-current="page"]{color:var(--green);font-weight:600}
+.tab[aria-current="page"] svg{stroke-width:2.3}
+.ov{position:fixed;inset:0;z-index:40;background:var(--overlay);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:520px;max-height:88%;overflow-y:auto;background:var(--surface);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out}
+.sheet h2{font-size:18px;margin-bottom:12px}
+.sheet .grab{width:40px;height:4px;border-radius:9px;background:var(--line);margin:0 auto 14px}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.rem .ar{font-size:38px}
+.btns{display:flex;gap:10px;margin-top:14px}.btns .btn{flex:1}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);text-align:center}
+.ln{padding:12px 0;border-top:1px solid var(--line);text-align:center}
+.ln:first-of-type{border-top:0}
+.read .ar{font-size:30px}
+.read .between{margin-bottom:6px}
+.pr{color:var(--green);font-weight:500;font-size:15px;margin:2px 0 4px}
+.src{margin-top:8px}
+.rem .ar{font-size:30px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app"><main id="view" class="stack"></main></div>
+
+<nav class="tabs" aria-label="প্রধান মেনু"><div class="in" id="tabs"></div></nav>
+<div class="ov" id="ov" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div id="toast" hidden role="status"></div>
+
+<script>
+(function(){
+'use strict';
+var KEY='dhikrDiary.v1';
+var $=function(s){return document.querySelector(s)};
+var DAYS=['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
+var DS=['রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র','শনি'];
+var MONTHS=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+var MS=['জানু','ফেব্রু','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টে','অক্টো','নভে','ডিসে'];
+var HM=['মুহাররম','সফর','রবিউল আউয়াল','রবিউস সানি','জমাদিউল আউয়াল','জমাদিউস সানি','রজব','শাবান','রমজান','শাওয়াল','জিলকদ','জিলহজ'];
+var PR=['ফজর','যোহর','আসর','মাগরিব','এশা'];
+var CATS={islamic:'ইসলামিক',daily:'দৈনন্দিন',important:'গুরুত্বপূর্ণ'};
+var LIB=[{"id":"subhan","name":"সুবহানাল্লাহ","cat":"dhikr","t":33,"r":true,"d":true,"a":["سُبْحَانَ ٱللَّهِ"],"u":["সুবহানাল্লাহ"],"m":["আল্লাহ পবিত্র।"],"s":"সহিহ বুখারি ও মুসলিম (নামাজের পর ৩৩ বার তাসবিহ)"},{"id":"alham","name":"আলহামদুলিল্লাহ","cat":"dhikr","t":33,"r":true,"d":true,"a":["ٱلْحَمْدُ لِلَّهِ"],"u":["আলহামদুলিল্লাহ"],"m":["সকল প্রশংসা আল্লাহর।"],"s":"সহিহ বুখারি ও মুসলিম (নামাজের পর ৩৩ বার)"},{"id":"akbar","name":"আল্লাহু আকবার","cat":"dhikr","t":33,"r":true,"d":true,"a":["ٱللَّهُ أَكْبَرُ"],"u":["আল্লাহু আকবার"],"m":["আল্লাহ সবচেয়ে বড়।"],"s":"সহিহ বুখারি ও মুসলিম (নামাজের পর ৩৩ বার)"},{"id":"istighfar","name":"ইস্তিগফার","cat":"dhikr","t":100,"r":true,"d":true,"a":["أَسْتَغْفِرُ ٱللَّهَ"],"u":["আস্তাগফিরুল্লাহ"],"m":["আমি আল্লাহর কাছে ক্ষমা চাই।"],"s":"সহিহ মুসলিম (নবী ﷺ দিনে ১০০ বার তাওবা করতেন)"},{"id":"durood","name":"দরূদে ইবরাহিম","cat":"dhikr","t":100,"r":true,"d":true,"a":["ٱللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَىٰ إِبْرَاهِيمَ وَعَلَىٰ آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ","ٱللَّهُمَّ بَارِكْ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَىٰ إِبْرَاهِيمَ وَعَلَىٰ آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ"],"u":["আল্লাহুম্মা সাল্লি আলা মুহাম্মাদিঁও ওয়া আলা আলি মুহাম্মাদ, কামা সাল্লাইতা আলা ইবরাহীমা ওয়া আলা আলি ইবরাহীম, ইন্নাকা হামীদুম মাজীদ","আল্লাহুম্মা বারিক আলা মুহাম্মাদিঁও ওয়া আলা আলি মুহাম্মাদ, কামা বারাকতা আলা ইবরাহীমা ওয়া আলা আলি ইবরাহীম, ইন্নাকা হামীদুম মাজীদ"],"m":["হে আল্লাহ, মুহাম্মাদ ﷺ ও তাঁর পরিবারের উপর রহমত বর্ষণ করুন, যেমন ইবরাহিম (আ.) ও তাঁর পরিবারের উপর করেছেন। নিশ্চয়ই আপনি প্রশংসিত, মহিমান্বিত।","হে আল্লাহ, মুহাম্মাদ ﷺ ও তাঁর পরিবারের উপর বরকত দিন, যেমন ইবরাহিম (আ.) ও তাঁর পরিবারের উপর দিয়েছেন। নিশ্চয়ই আপনি প্রশংসিত, মহিমান্বিত।"],"s":"সহিহ বুখারি ও মুসলিম (নামাজের দরূদ)"},{"id":"d06","name":"সুবহানাল্লাহি ওয়া বিহামদিহী","cat":"dhikr","t":100,"r":true,"d":false,"a":["سُبْحَانَ ٱللَّهِ وَبِحَمْدِهِ"],"u":["সুবহানাল্লাহি ওয়া বিহামদিহী"],"m":["আল্লাহ পবিত্র, তাঁর প্রশংসাসহ।"],"s":"সহিহ বুখারি ও মুসলিম (দিনে ১০০ বার পড়লে গুনাহ মাফের হাদিস)"},{"id":"d07","name":"সুবহানাল্লাহিল আযীম","cat":"dhikr","t":100,"r":true,"d":false,"a":["سُبْحَانَ ٱللَّهِ وَبِحَمْدِهِ سُبْحَانَ ٱللَّهِ ٱلْعَظِيمِ"],"u":["সুবহানাল্লাহি ওয়া বিহামদিহী, সুবহানাল্লাহিল আযীম"],"m":["আল্লাহ পবিত্র, তাঁর প্রশংসাসহ; মহান আল্লাহ পবিত্র।"],"s":"সহিহ বুখারি ও মুসলিম (দুটি বাক্য, জিহ্বায় হালকা, দাঁড়িপাল্লায় ভারী, রহমানের প্রিয়)"},{"id":"d08","name":"লা ইলাহা ইল্লাল্লাহ","cat":"dhikr","t":100,"r":true,"d":false,"a":["لَا إِلَٰهَ إِلَّا ٱللَّهُ"],"u":["লা ইলাহা ইল্লাল্লাহ"],"m":["আল্লাহ ছাড়া কোনো সত্য ইলাহ নেই।"],"s":"সহিহ তিরমিযি (সর্বোত্তম জিকির)"},{"id":"d09","name":"লা হাওলা ওয়ালা কুওয়াতা","cat":"dhikr","t":100,"r":true,"d":false,"a":["لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِٱللَّهِ"],"u":["লা হাওলা ওয়ালা কুওয়াতা ইল্লা বিল্লাহ"],"m":["আল্লাহর সাহায্য ছাড়া কোনো উপায় ও শক্তি নেই।"],"s":"সহিহ বুখারি ও মুসলিম (জান্নাতের ধনভাণ্ডারের একটি)"},{"id":"d10","name":"চার প্রিয় বাক্য","cat":"dhikr","t":10,"r":true,"d":false,"a":["سُبْحَانَ ٱللَّهِ وَٱلْحَمْدُ لِلَّهِ وَلَا إِلَٰهَ إِلَّا ٱللَّهُ وَٱللَّهُ أَكْبَرُ"],"u":["সুবহানাল্লাহি ওয়াল হামদুলিল্লাহি ওয়ালা ইলাহা ইল্লাল্লাহু ওয়াল্লাহু আকবার"],"m":["আল্লাহ পবিত্র, সকল প্রশংসা আল্লাহর, আল্লাহ ছাড়া কোনো ইলাহ নেই এবং আল্লাহ সবচেয়ে বড়।"],"s":"সহিহ মুসলিম (আল্লাহর কাছে সবচেয়ে প্রিয় বাক্য)"},{"id":"d11","name":"তাওহীদের জিকির","cat":"dhikr","t":10,"r":true,"d":false,"a":["لَا إِلَٰهَ إِلَّا ٱللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ لَهُ ٱلْمُلْكُ وَلَهُ ٱلْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ"],"u":["লা ইলাহা ইল্লাল্লাহু ওয়াহদাহূ লা শারীকা লাহ, লাহুল মুলকু ওয়ালাহুল হামদু ওয়াহুওয়া আলা কুল্লি শাইয়িন কাদীর"],"m":["আল্লাহ ছাড়া কোনো ইলাহ নেই, তিনি এক, তাঁর কোনো শরিক নেই। রাজত্ব তাঁর, প্রশংসা তাঁর, আর তিনি সবকিছুর উপর ক্ষমতাবান।"],"s":"সহিহ বুখারি ও মুসলিম (দিনে ১০০ বার পড়ার ফজিলত)"},{"id":"d12","name":"সাইয়্যিদুল ইস্তিগফার","cat":"dhikr","t":1,"r":false,"d":false,"a":["ٱللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَىٰ عَهْدِكَ وَوَعْدِكَ مَا ٱسْتَطَعْتُ","أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ بِذَنْبِي فَٱغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ ٱلذُّنُوبَ إِلَّا أَنْتَ"],"u":["আল্লাহুম্মা আনতা রাব্বী লা ইলাহা ইল্লা আনতা, খালাকতানী ওয়া আনা আবদুক, ওয়া আনা আলা আহদিকা ওয়া ওয়া'দিকা মাসতাতা'তু","আউযু বিকা মিন শাররি মা সানা'তু, আবূউ লাকা বিনি'মাতিকা আলাইয়্যা, ওয়া আবূউ বিযাম্বী ফাগফির লী, ফাইন্নাহূ লা ইয়াগফিরুয যুনূবা ইল্লা আনতা"],"m":["হে আল্লাহ, আপনি আমার রব, আপনি ছাড়া কোনো ইলাহ নেই। আপনি আমাকে সৃষ্টি করেছেন, আমি আপনার বান্দা, আর আমি যথাসাধ্য আপনার অঙ্গীকার ও প্রতিশ্রুতির উপর আছি।","আমি যা করেছি তার অনিষ্ট থেকে আপনার আশ্রয় চাই। আপনার নেয়ামত আমি স্বীকার করছি, আমার গুনাহও স্বীকার করছি। অতএব আমাকে ক্ষমা করুন, কারণ আপনি ছাড়া কেউ গুনাহ ক্ষমা করে না।"],"s":"সহিহ বুখারি (সকাল-সন্ধ্যায় পড়ার দুআ)"},{"id":"d13","name":"রব্বিগফির লী ওয়াতুব আলাইয়া","cat":"dhikr","t":100,"r":true,"d":false,"a":["رَبِّ ٱغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ ٱلتَّوَّابُ ٱلرَّحِيمُ"],"u":["রাব্বিগফির লী ওয়া তুব আলাইয়্যা ইন্নাকা আনতাত তাওয়াবুর রাহীম"],"m":["হে আমার রব, আমাকে ক্ষমা করুন ও আমার তাওবা কবুল করুন। নিশ্চয়ই আপনি তাওবা কবুলকারী, দয়ালু।"],"s":"আবু দাউদ, তিরমিযি (সহিহ)"},{"id":"d14","name":"হাসবিয়াল্লাহু লা ইলাহা ইল্লা হুওয়া","cat":"dhikr","t":7,"r":false,"d":false,"a":["حَسْبِىَ ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ۖ عَلَيْهِ تَوَكَّلْتُ ۖ وَهُوَ رَبُّ ٱلْعَرْشِ ٱلْعَظِيمِ"],"u":["হাসবিয়াল্লাহু লা ইলাহা ইল্লা হুওয়া, আলাইহি তাওয়াক্কালতু ওয়া হুওয়া রাব্বুল আরশিল আযীম"],"m":["আমার জন্য আল্লাহই যথেষ্ট, তিনি ছাড়া কোনো ইলাহ নেই। আমি তাঁরই উপর ভরসা করি, তিনি মহান আরশের রব।"],"s":"কুরআন ৯:১২৯"},{"id":"d15","name":"হাসবুনাল্লাহু ওয়া নি'মাল ওয়াকীল","cat":"dhikr","t":10,"r":false,"d":false,"a":["حَسْبُنَا ٱللَّهُ وَنِعْمَ ٱلْوَكِيلُ"],"u":["হাসবুনাল্লাহু ওয়া নি'মাল ওয়াকীল"],"m":["আল্লাহই আমাদের জন্য যথেষ্ট, আর তিনি কতই না উত্তম কর্মবিধায়ক।"],"s":"কুরআন ৩:১৭৩ · সহিহ বুখারি"},{"id":"d16","name":"ইন্না লিল্লাহি ওয়া ইন্না ইলাইহি রাজিউন","cat":"dhikr","t":1,"r":false,"d":false,"a":["إِنَّا لِلَّهِ وَإِنَّآ إِلَيْهِ رَٰجِعُونَ"],"u":["ইন্না লিল্লাহি ওয়া ইন্না ইলাইহি রাজিউন"],"m":["নিশ্চয়ই আমরা আল্লাহরই এবং নিশ্চয়ই আমরা তাঁরই কাছে ফিরে যাব।"],"s":"কুরআন ২:১৫৬ (বিপদের সময়)"},{"id":"d17","name":"ইউনুস (আ.)-এর দুআ","cat":"dhikr","t":10,"r":false,"d":false,"a":["لَّآ إِلَٰهَ إِلَّآ أَنتَ سُبْحَٰنَكَ إِنِّى كُنتُ مِنَ ٱلظَّٰلِمِينَ"],"u":["লা ইলাহা ইল্লা আনতা সুবহানাকা ইন্নী কুনতু মিনায যালিমীন"],"m":["আপনি ছাড়া কোনো ইলাহ নেই, আপনি পবিত্র। নিশ্চয়ই আমি জালিমদের অন্তর্ভুক্ত হয়ে গেছি।"],"s":"কুরআন ২১:৮৭ · তিরমিযি"},{"id":"d18","name":"আউযু বিকালিমাতিল্লাহিত তাম্মাত","cat":"dhikr","t":3,"r":false,"d":false,"a":["أَعُوذُ بِكَلِمَاتِ ٱللَّهِ ٱلتَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ"],"u":["আউযু বিকালিমাতিল্লাহিত তাম্মাতি মিন শাররি মা খালাক"],"m":["আমি আল্লাহর পূর্ণাঙ্গ বাক্যসমূহের মাধ্যমে তাঁর সৃষ্ট সবকিছুর অনিষ্ট থেকে আশ্রয় চাই।"],"s":"সহিহ মুসলিম (কোথাও অবস্থান নেওয়ার সময়)"},{"id":"d19","name":"আল্লাহুম্মা আইন্নী আলা যিকরিকা","cat":"dhikr","t":1,"r":false,"d":false,"a":["ٱللَّهُمَّ أَعِنِّي عَلَىٰ ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ"],"u":["আল্লাহুম্মা আইন্নী আলা যিকরিকা ওয়া শুকরিকা ওয়া হুসনি ইবাদাতিক"],"m":["হে আল্লাহ, আপনার জিকির, শুকরিয়া ও সুন্দরভাবে ইবাদত করতে আমাকে সাহায্য করুন।"],"s":"আবু দাউদ, নাসাঈ (সহিহ)"},{"id":"q01","name":"দুনিয়া ও আখিরাতের কল্যাণের দুআ","cat":"dua","t":1,"r":true,"d":false,"a":["رَبَّنَآ ءَاتِنَا فِى ٱلدُّنْيَا حَسَنَةً وَفِى ٱلْءَاخِرَةِ حَسَنَةً وَقِنَا عَذَابَ ٱلنَّارِ"],"u":["রাব্বানা আতিনা ফিদ দুনিয়া হাসানাতাঁও ওয়া ফিল আখিরাতি হাসানাতাঁও ওয়াকিনা আযাবান নার"],"m":["হে আমাদের রব, আমাদের দুনিয়াতে কল্যাণ দিন, আখিরাতেও কল্যাণ দিন এবং আমাদের আগুনের শাস্তি থেকে রক্ষা করুন।"],"s":"কুরআন ২:২০১ · সহিহ বুখারি ও মুসলিম"},{"id":"q02","name":"আদম (আ.)-এর তাওবার দুআ","cat":"dua","t":1,"r":true,"d":false,"a":["رَبَّنَا ظَلَمْنَآ أَنفُسَنَا وَإِن لَّمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ ٱلْخَٰسِرِينَ"],"u":["রাব্বানা যালামনা আনফুসানা ওয়া ইল্লাম তাগফির লানা ওয়া তারহামনা লানাকূনান্না মিনাল খাসিরীন"],"m":["হে আমাদের রব, আমরা নিজেদের উপর জুলুম করেছি। যদি আপনি আমাদের ক্ষমা না করেন ও দয়া না করেন, তবে অবশ্যই আমরা ক্ষতিগ্রস্তদের অন্তর্ভুক্ত হব।"],"s":"কুরআন ৭:২৩"},{"id":"q03","name":"ইলম বৃদ্ধির দুআ","cat":"dua","t":1,"r":true,"d":false,"a":["رَّبِّ زِدْنِى عِلْمًا"],"u":["রাব্বি যিদনী ইলমা"],"m":["হে আমার রব, আমার জ্ঞান বাড়িয়ে দিন।"],"s":"কুরআন ২০:১১৪"},{"id":"q04","name":"মূসা (আ.)-এর দুআ (কাজ সহজ হওয়ার জন্য)","cat":"dua","t":1,"r":false,"d":false,"a":["رَبِّ ٱشْرَحْ لِى صَدْرِى وَيَسِّرْ لِىٓ أَمْرِى وَٱحْلُلْ عُقْدَةً مِّن لِّسَانِى يَفْقَهُوا۟ قَوْلِى"],"u":["রাব্বিশরাহ লী সাদরী, ওয়া ইয়াসসির লী আমরী, ওয়াহলুল উকদাতাম মিল লিসানী, ইয়াফকাহূ কাওলী"],"m":["হে আমার রব, আমার বক্ষ প্রশস্ত করে দিন, আমার কাজ সহজ করে দিন, আমার জিহ্বার জড়তা দূর করুন, যাতে তারা আমার কথা বুঝতে পারে।"],"s":"কুরআন ২০:২৫-২৮"},{"id":"q05","name":"পরিবারের জন্য দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["رَبَّنَا هَبْ لَنَا مِنْ أَزْوَٰجِنَا وَذُرِّيَّٰتِنَا قُرَّةَ أَعْيُنٍ وَٱجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا"],"u":["রাব্বানা হাব লানা মিন আযওয়াজিনা ওয়া যুররিয়্যাতিনা কুররাতা আ'ইউনিঁও ওয়াজ'আলনা লিল মুত্তাকীনা ইমামা"],"m":["হে আমাদের রব, আমাদের স্ত্রী ও সন্তানদের পক্ষ থেকে আমাদের চোখের শীতলতা দান করুন এবং আমাদের মুত্তাকিদের নেতা বানান।"],"s":"কুরআন ২৫:৭৪"},{"id":"q06","name":"নিজের, পিতামাতার ও মুমিনদের জন্য ক্ষমা","cat":"dua","t":1,"r":false,"d":false,"a":["رَّبِّ ٱغْفِرْ لِى وَلِوَٰلِدَىَّ وَلِمَن دَخَلَ بَيْتِىَ مُؤْمِنًا وَلِلْمُؤْمِنِينَ وَٱلْمُؤْمِنَٰتِ"],"u":["রাব্বিগফির লী ওয়ালি ওয়ালিদাইয়্যা ওয়ালিমান দাখালা বাইতিয়া মু'মিনাঁও ওয়ালিল মু'মিনীনা ওয়াল মু'মিনাত"],"m":["হে আমার রব, আমাকে, আমার পিতামাতাকে, আমার ঘরে প্রবেশকারী মুমিনকে এবং সকল মুমিন নর-নারীকে ক্ষমা করুন।"],"s":"কুরআন ৭১:২৮"},{"id":"q07","name":"পিতামাতার জন্য দুআ","cat":"dua","t":1,"r":true,"d":false,"a":["رَّبِّ ٱرْحَمْهُمَا كَمَا رَبَّيَانِى صَغِيرًا"],"u":["রাব্বির হামহুমা কামা রাব্বাইয়ানী সাগীরা"],"m":["হে আমার রব, তাঁদের দুজনের প্রতি দয়া করুন, যেমন তাঁরা শৈশবে আমাকে লালন-পালন করেছেন।"],"s":"কুরআন ১৭:২৪"},{"id":"q08","name":"অন্তরের দৃঢ়তার দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً ۚ إِنَّكَ أَنتَ ٱلْوَهَّابُ"],"u":["রাব্বানা লা তুযিগ কুলূবানা বা'দা ইয হাদাইতানা ওয়া হাব লানা মিল লাদুনকা রাহমাহ, ইন্নাকা আনতাল ওয়াহহাব"],"m":["হে আমাদের রব, হেদায়েত দেওয়ার পর আমাদের অন্তর বাঁকা করবেন না এবং আপনার পক্ষ থেকে আমাদের রহমত দান করুন। নিশ্চয়ই আপনি মহান দাতা।"],"s":"কুরআন ৩:৮"},{"id":"q09","name":"আমল কবুলের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["رَبَّنَا تَقَبَّلْ مِنَّآ ۖ إِنَّكَ أَنتَ ٱلسَّمِيعُ ٱلْعَلِيمُ"],"u":["রাব্বানা তাকাব্বাল মিন্না, ইন্নাকা আনতাস সামীউল আলীম"],"m":["হে আমাদের রব, আমাদের পক্ষ থেকে কবুল করুন। নিশ্চয়ই আপনি সর্বশ্রোতা, সর্বজ্ঞ।"],"s":"কুরআন ২:১২৭"},{"id":"q10","name":"নামাজ কায়েমের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["رَبِّ ٱجْعَلْنِى مُقِيمَ ٱلصَّلَوٰةِ وَمِن ذُرِّيَّتِى ۚ رَبَّنَا وَتَقَبَّلْ دُعَآءِ","رَبَّنَا ٱغْفِرْ لِى وَلِوَٰلِدَىَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ ٱلْحِسَابُ"],"u":["রাব্বিজ'আলনী মুকীমাস সালাতি ওয়ামিন যুররিয়্যাতী, রাব্বানা ওয়া তাকাব্বাল দুআ","রাব্বানাগফির লী ওয়ালি ওয়ালিদাইয়্যা ওয়ালিল মু'মিনীনা ইয়াওমা ইয়াকূমুল হিসাব"],"m":["হে আমার রব, আমাকে ও আমার সন্তানদের নামাজ কায়েমকারী বানান। হে আমাদের রব, আমার দুআ কবুল করুন।","হে আমাদের রব, হিসাবের দিনে আমাকে, আমার পিতামাতাকে ও মুমিনদের ক্ষমা করুন।"],"s":"কুরআন ১৪:৪০-৪১ (ইবরাহিম আ.-এর দুআ)"},{"id":"q11","name":"প্রয়োজনের দুআ (মূসা আ.)","cat":"dua","t":1,"r":false,"d":false,"a":["رَبِّ إِنِّى لِمَآ أَنزَلْتَ إِلَىَّ مِنْ خَيْرٍ فَقِيرٌ"],"u":["রাব্বি ইন্নী লিমা আনযালতা ইলাইয়্যা মিন খাইরিন ফাকীর"],"m":["হে আমার রব, আপনি আমার প্রতি যে কল্যাণই নাযিল করুন, আমি তার মুখাপেক্ষী।"],"s":"কুরআন ২৮:২৪"},{"id":"h01","name":"ঘুমানোর দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["بِٱسْمِكَ ٱللَّهُمَّ أَمُوتُ وَأَحْيَا"],"u":["বিসমিকাল্লাহুম্মা আমূতু ওয়া আহইয়া"],"m":["হে আল্লাহ, আপনার নামেই আমি মরি (ঘুমাই) এবং বাঁচি (জাগি)।"],"s":"সহিহ বুখারি"},{"id":"h02","name":"ঘুম থেকে উঠার দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["ٱلْحَمْدُ لِلَّهِ ٱلَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ ٱلنُّشُورُ"],"u":["আলহামদু লিল্লাহিল্লাযী আহইয়ানা বা'দা মা আমাতানা ওয়া ইলাইহিন নুশূর"],"m":["সকল প্রশংসা আল্লাহর, যিনি আমাদের মৃত্যুর (ঘুমের) পর জীবিত করেছেন, আর তাঁর কাছেই পুনরুত্থান।"],"s":"সহিহ বুখারি"},{"id":"h03","name":"খাওয়ার আগের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["بِسْمِ ٱللَّهِ"],"u":["বিসমিল্লাহ"],"m":["আল্লাহর নামে শুরু করছি। (ভুলে গেলে মনে পড়লে: বিসমিল্লাহি আউওয়ালাহূ ওয়া আখিরাহ)"],"s":"সহিহ বুখারি ও মুসলিম, আবু দাউদ"},{"id":"h04","name":"খাওয়ার পরের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["ٱلْحَمْدُ لِلَّهِ حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ غَيْرَ مَكْفِيٍّ وَلَا مُوَدَّعٍ وَلَا مُسْتَغْنًى عَنْهُ رَبَّنَا"],"u":["আলহামদু লিল্লাহি হামদান কাসীরান তাইয়্যিবান মুবারাকান ফীহি, গাইরা মাকফিইয়িঁও ওয়ালা মুওয়াদ্দা'ইঁও ওয়ালা মুসতাগনান আনহু রাব্বানা"],"m":["আল্লাহর অনেক পবিত্র ও বরকতময় প্রশংসা, যা কখনো যথেষ্ট হয় না, ছাড়া যায় না এবং যা থেকে অমুখাপেক্ষী হওয়া যায় না, হে আমাদের রব।"],"s":"সহিহ বুখারি"},{"id":"h05","name":"ঘর থেকে বের হওয়ার দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["بِسْمِ ٱللَّهِ تَوَكَّلْتُ عَلَى ٱللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِٱللَّهِ"],"u":["বিসমিল্লাহি তাওয়াক্কালতু আলাল্লাহি ওয়ালা হাওলা ওয়ালা কুওয়াতা ইল্লা বিল্লাহ"],"m":["আল্লাহর নামে, আল্লাহর উপর ভরসা করলাম; আল্লাহর সাহায্য ছাড়া কোনো উপায় ও শক্তি নেই।"],"s":"আবু দাউদ, তিরমিযি (সহিহ)"},{"id":"h06","name":"মসজিদে প্রবেশের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["ٱللَّهُمَّ ٱفْتَحْ لِي أَبْوَابَ رَحْمَتِكَ"],"u":["আল্লাহুম্মাফতাহ লী আবওয়াবা রাহমাতিক"],"m":["হে আল্লাহ, আমার জন্য আপনার রহমতের দরজাগুলো খুলে দিন।"],"s":"সহিহ মুসলিম"},{"id":"h07","name":"মসজিদ থেকে বের হওয়ার দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["ٱللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ"],"u":["আল্লাহুম্মা ইন্নী আসআলুকা মিন ফাদলিক"],"m":["হে আল্লাহ, আমি আপনার অনুগ্রহ প্রার্থনা করছি।"],"s":"সহিহ মুসলিম"},{"id":"h08","name":"টয়লেটে প্রবেশের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["ٱللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ ٱلْخُبُثِ وَٱلْخَبَائِثِ"],"u":["আল্লাহুম্মা ইন্নী আউযু বিকা মিনাল খুবুসি ওয়াল খাবাইস"],"m":["হে আল্লাহ, আমি পুরুষ ও নারী শয়তানদের অনিষ্ট থেকে আপনার আশ্রয় চাই।"],"s":"সহিহ বুখারি ও মুসলিম"},{"id":"h09","name":"টয়লেট থেকে বের হওয়ার দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["غُفْرَانَكَ"],"u":["গুফরানাক"],"m":["আমি আপনার ক্ষমা চাই।"],"s":"আবু দাউদ, তিরমিযি (সহিহ)"},{"id":"h10","name":"ওযুর পরের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا ٱللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ"],"u":["আশহাদু আল্লা ইলাহা ইল্লাল্লাহু ওয়াহদাহূ লা শারীকা লাহু, ওয়া আশহাদু আন্না মুহাম্মাদান আবদুহূ ওয়া রাসূলুহ"],"m":["আমি সাক্ষ্য দিচ্ছি আল্লাহ ছাড়া কোনো ইলাহ নেই, তিনি একক, তাঁর কোনো শরিক নেই; আর সাক্ষ্য দিচ্ছি মুহাম্মাদ ﷺ তাঁর বান্দা ও রাসূল।"],"s":"সহিহ মুসলিম"},{"id":"h11","name":"সকাল-সন্ধ্যার নিরাপত্তার দুআ","cat":"dua","t":3,"r":false,"d":false,"a":["بِسْمِ ٱللَّهِ ٱلَّذِي لَا يَضُرُّ مَعَ ٱسْمِهِ شَيْءٌ فِي ٱلْأَرْضِ وَلَا فِي ٱلسَّمَاءِ وَهُوَ ٱلسَّمِيعُ ٱلْعَلِيمُ"],"u":["বিসমিল্লাহিল্লাযী লা ইয়াদুররু মা'আসমিহী শাইউন ফিল আরদি ওয়ালা ফিস সামাই, ওয়া হুওয়াস সামীউল আলীম"],"m":["আল্লাহর নামে, যাঁর নামের সাথে আসমান ও জমিনের কোনো কিছুই ক্ষতি করতে পারে না। তিনি সর্বশ্রোতা, সর্বজ্ঞ।"],"s":"আবু দাউদ, তিরমিযি (সহিহ) · ৩ বার"},{"id":"h12","name":"দুশ্চিন্তা ও দুঃখ থেকে আশ্রয়","cat":"dua","t":1,"r":false,"d":false,"a":["ٱللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ ٱلْهَمِّ وَٱلْحَزَنِ"],"u":["আল্লাহুম্মা ইন্নী আউযু বিকা মিনাল হাম্মি ওয়াল হাযান"],"m":["হে আল্লাহ, আমি দুশ্চিন্তা ও দুঃখ থেকে আপনার আশ্রয় চাই।"],"s":"সহিহ বুখারি"},{"id":"h13","name":"অন্তর অবিচল রাখার দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["يَا مُقَلِّبَ ٱلْقُلُوبِ ثَبِّتْ قَلْبِي عَلَىٰ دِينِكَ"],"u":["ইয়া মুকাল্লিবাল কুলূবি সাব্বিত কালবী আলা দীনিক"],"m":["হে অন্তরসমূহের পরিবর্তনকারী, আমার অন্তরকে আপনার দ্বীনের উপর অবিচল রাখুন।"],"s":"তিরমিযি (সহিহ)"},{"id":"h14","name":"ব্যথার সময়ের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["بِسْمِ ٱللَّهِ","أَعُوذُ بِٱللَّهِ وَقُدْرَتِهِ مِنْ شَرِّ مَا أَجِدُ وَأُحَاذِرُ"],"u":["বিসমিল্লাহ (৩ বার)","আউযু বিল্লাহি ওয়া কুদরাতিহী মিন শাররি মা আজিদু ওয়া উহাযির (৭ বার)"],"m":["ব্যথার জায়গায় হাত রেখে আল্লাহর নাম নিন।","আমি যে কষ্ট অনুভব করছি ও যার আশঙ্কা করছি, তার অনিষ্ট থেকে আল্লাহর ও তাঁর কুদরতের আশ্রয় চাই।"],"s":"সহিহ মুসলিম"},{"id":"h15","name":"হালাল রিযিকের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["ٱللَّهُمَّ ٱكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ"],"u":["আল্লাহুম্মাকফিনী বিহালালিকা আন হারামিকা ওয়া আগনিনী বিফাদলিকা আম্মান সিওয়াক"],"m":["হে আল্লাহ, আপনার হালাল দিয়ে আমাকে হারাম থেকে যথেষ্ট করুন এবং আপনার অনুগ্রহে আপনি ছাড়া অন্যদের থেকে আমাকে অমুখাপেক্ষী করুন।"],"s":"তিরমিযি (হাসান)"},{"id":"h16","name":"সফরের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["سُبْحَٰنَ ٱلَّذِى سَخَّرَ لَنَا هَٰذَا وَمَا كُنَّا لَهُۥ مُقْرِنِينَ وَإِنَّآ إِلَىٰ رَبِّنَا لَمُنقَلِبُونَ"],"u":["সুবহানাল্লাযী সাখখারা লানা হাযা ওয়ামা কুন্না লাহূ মুকরিনীন, ওয়া ইন্না ইলা রাব্বিনা লামুনকালিবূন"],"m":["পবিত্র তিনি, যিনি এটিকে আমাদের বশীভূত করে দিয়েছেন, অথচ আমরা একে বশ করতে সক্ষম ছিলাম না। আর আমরা অবশ্যই আমাদের রবের কাছে ফিরে যাব।"],"s":"কুরআন ৪৩:১৩-১৪ · সহিহ মুসলিম"},{"id":"h17","name":"ক্ষমা ও নিরাপত্তার দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["ٱللَّهُمَّ إِنِّي أَسْأَلُكَ ٱلْعَفْوَ وَٱلْعَافِيَةَ فِي ٱلدُّنْيَا وَٱلْآخِرَةِ"],"u":["আল্লাহুম্মা ইন্নী আসআলুকাল আফওয়া ওয়াল আফিয়াতা ফিদ দুনইয়া ওয়াল আখিরাহ"],"m":["হে আল্লাহ, আমি দুনিয়া ও আখিরাতে আপনার কাছে ক্ষমা ও নিরাপত্তা চাই।"],"s":"আবু দাউদ, ইবনে মাজাহ (সহিহ)"},{"id":"h18","name":"লাইলাতুল কদরের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["ٱللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ ٱلْعَفْوَ فَٱعْفُ عَنِّي"],"u":["আল্লাহুম্মা ইন্নাকা আফুউওুন তুহিব্বুল আফওয়া ফা'ফু আন্নী"],"m":["হে আল্লাহ, আপনি ক্ষমাশীল, ক্ষমা করতে ভালোবাসেন; অতএব আমাকে ক্ষমা করুন।"],"s":"তিরমিযি (সহিহ)"},{"id":"h19","name":"ইফতারের দুআ","cat":"dua","t":1,"r":false,"d":false,"a":["ذَهَبَ ٱلظَّمَأُ وَٱبْتَلَّتِ ٱلْعُرُوقُ وَثَبَتَ ٱلْأَجْرُ إِنْ شَاءَ ٱللَّهُ"],"u":["যাহাবায যামাউ ওয়াবতাল্লাতিল উরূকু ওয়া সাবাতাল আজরু ইনশাআল্লাহ"],"m":["পিপাসা দূর হয়েছে, শিরাগুলো সিক্ত হয়েছে এবং ইনশাআল্লাহ প্রতিদান নিশ্চিত হয়েছে।"],"s":"আবু দাউদ (হাসান)"},{"id":"s001","name":"সূরা আল-ফাতিহা","cat":"sura","t":1,"r":false,"d":false,"a":["بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ","ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ","ٱلرَّحْمَٰنِ ٱلرَّحِيمِ","مَٰلِكِ يَوْمِ ٱلدِّينِ","إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ","ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ","صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ"],"u":["বিসমিল্লাহির রাহমানির রাহীম","আলহামদু লিল্লাহি রাব্বিল আলামীন","আর-রাহমানির রাহীম","মালিকি ইয়াওমিদ্দীন","ইয়্যাকা না'বুদু ওয়া ইয়্যাকা নাস্তা'ঈন","ইহদিনাস সিরাতাল মুস্তাকীম","সিরাতাল্লাযীনা আন'আমতা আলাইহিম, গাইরিল মাগদূবি আলাইহিম ওয়ালাদ-দ্বাল্লীন"],"m":["শুরু করছি আল্লাহর নামে, যিনি পরম করুণাময়, অতি দয়ালু।","সকল প্রশংসা আল্লাহর, যিনি সারা জাহানের রব।","যিনি পরম করুণাময়, অতি দয়ালু।","যিনি বিচার দিনের মালিক।","আমরা শুধু আপনারই ইবাদত করি এবং শুধু আপনারই কাছে সাহায্য চাই।","আমাদের সরল পথ দেখান।","তাদের পথ, যাদের আপনি অনুগ্রহ করেছেন; যাদের উপর গজব পড়েছে ও যারা পথভ্রষ্ট, তাদের পথ নয়।"],"s":"কুরআন ১:১-৭ · সহিহ বুখারি ৭৫৬, সহিহ মুসলিম ৩৯৪"},{"id":"s093","name":"সূরা আদ-দুহা","cat":"sura","t":1,"r":false,"d":false,"a":["وَٱلضُّحَىٰ","وَٱلَّيْلِ إِذَا سَجَىٰ","مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ","وَلَلْـَٔاخِرَةُ خَيْرٌ لَّكَ مِنَ ٱلْأُولَىٰ","وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰٓ","أَلَمْ يَجِدْكَ يَتِيمًا فَـَٔاوَىٰ","وَوَجَدَكَ ضَآلًّا فَهَدَىٰ","وَوَجَدَكَ عَآئِلًا فَأَغْنَىٰ","فَأَمَّا ٱلْيَتِيمَ فَلَا تَقْهَرْ","وَأَمَّا ٱلسَّآئِلَ فَلَا تَنْهَرْ","وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ"],"u":["ওয়াদ-দুহা","ওয়াল লাইলি ইযা সাজা","মা ওয়াদ্দা'আকা রাব্বুকা ওয়ামা কালা","ওয়ালাল আখিরাতু খাইরুল লাকা মিনাল ঊলা","ওয়ালাসাওফা ইউ'তীকা রাব্বুকা ফাতারদ্বা","আলাম ইয়াজিদকা ইয়াতীমান ফাআওয়া","ওয়া ওয়াজাদাকা দ্বাল্লান ফাহাদা","ওয়া ওয়াজাদাকা 'আইলান ফাআগনা","ফাআম্মাল ইয়াতীমা ফালা তাকহার","ওয়াআম্মাস সা-ইলা ফালা তানহার","ওয়াআম্মা বিনি'মাতি রাব্বিকা ফাহাদ্দিস"],"m":["শপথ পূর্বাহ্নের (সকালের আলোর),","শপথ রাতের, যখন তা শান্ত হয়ে যায়,","আপনার রব আপনাকে ত্যাগ করেননি এবং অসন্তুষ্টও হননি।","নিশ্চয়ই পরকাল আপনার জন্য দুনিয়ার চেয়ে উত্তম।","আপনার রব শীঘ্রই আপনাকে এত দেবেন যে আপনি সন্তুষ্ট হবেন।","তিনি কি আপনাকে ইয়াতীম অবস্থায় পাননি? তারপর আশ্রয় দেননি?","তিনি আপনাকে পথের সন্ধানহীন পেয়েছেন, তারপর পথ দেখিয়েছেন।","তিনি আপনাকে অভাবী পেয়েছেন, তারপর অভাবমুক্ত করেছেন।","অতএব ইয়াতীমের প্রতি কঠোর হবেন না।","আর সাহায্যপ্রার্থীকে ধমক দেবেন না।","আর আপনার রবের অনুগ্রহের কথা প্রকাশ করুন।"],"s":"কুরআন ৯৩:১-১১"},{"id":"s094","name":"সূরা আশ-শারহ (ইনশিরাহ)","cat":"sura","t":1,"r":false,"d":false,"a":["أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ","وَوَضَعْنَا عَنكَ وِزْرَكَ","ٱلَّذِىٓ أَنقَضَ ظَهْرَكَ","وَرَفَعْنَا لَكَ ذِكْرَكَ","فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا","إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا","فَإِذَا فَرَغْتَ فَٱنصَبْ","وَإِلَىٰ رَبِّكَ فَٱرْغَب"],"u":["আলাম নাশরাহ লাকা সাদরাক","ওয়া ওয়াদা'না আনকা বিযরাক","আল্লাযী আনকাদা যাহরাক","ওয়া রাফা'না লাকা যিকরাক","ফাইন্না মা'আল উসরি ইউসরা","ইন্না মা'আল উসরি ইউসরা","ফাইযা ফারাগতা ফানসাব","ওয়া ইলা রাব্বিকা ফারগাব"],"m":["আমি কি আপনার বক্ষ আপনার জন্য খুলে দিইনি?","আর আপনার থেকে আপনার বোঝা নামিয়ে দিয়েছি,","যা আপনার পিঠ ভেঙে দিচ্ছিল।","আর আপনার জন্য আপনার আলোচনা উচ্চ করেছি।","নিশ্চয়ই কষ্টের সাথে স্বস্তি আছে।","নিশ্চয়ই কষ্টের সাথে স্বস্তি আছে।","অতএব যখন অবসর পান, তখন ইবাদতে পরিশ্রম করুন।","আর আপনার রবের প্রতিই মনোযোগী হোন।"],"s":"কুরআন ৯৪:১-৮"},{"id":"s095","name":"সূরা আত-তীন","cat":"sura","t":1,"r":false,"d":false,"a":["وَٱلتِّينِ وَٱلزَّيْتُونِ","وَطُورِ سِينِينَ","وَهَٰذَا ٱلْبَلَدِ ٱلْأَمِينِ","لَقَدْ خَلَقْنَا ٱلْإِنسَٰنَ فِىٓ أَحْسَنِ تَقْوِيمٍ","ثُمَّ رَدَدْنَٰهُ أَسْفَلَ سَٰفِلِينَ","إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ فَلَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ","فَمَا يُكَذِّبُكَ بَعْدُ بِٱلدِّينِ","أَلَيْسَ ٱللَّهُ بِأَحْكَمِ ٱلْحَٰكِمِينَ"],"u":["ওয়াত-তীনি ওয়ায-যাইতূন","ওয়া তূরি সীনীন","ওয়া হাযাল বালাদিল আমীন","লাকাদ খালাকনাল ইনসানা ফী আহসানি তাকবীম","সুম্মা রাদাদনাহু আসফালা সাফিলীন","ইল্লাল্লাযীনা আমানূ ওয়া আমিলুস সালিহাতি ফালাহুম আজরুন গাইরু মামনূন","ফামা ইউকাযযিবুকা বা'দু বিদ-দীন","আলাইসাল্লাহু বিআহকামিল হাকিমীন"],"m":["শপথ তীন (ডুমুর) ও যায়তুন (জলপাই) এর,","শপথ সিনাই পর্বতের,","শপথ এই নিরাপদ নগরীর (মক্কার)।","আমি মানুষকে সৃষ্টি করেছি সর্বোত্তম গঠনে।","তারপর তাকে ফিরিয়ে দিয়েছি নিম্নতমদের মধ্যে নিম্নতম অবস্থায়,","তবে যারা ঈমান এনেছে ও সৎকর্ম করেছে, তাদের জন্য রয়েছে কখনো শেষ না হওয়া প্রতিদান।","তারপর কিসে তোমাকে কর্মফল দিবসকে অস্বীকার করাচ্ছে?","আল্লাহ কি বিচারকদের মধ্যে শ্রেষ্ঠ বিচারক নন?"],"s":"কুরআন ৯৫:১-৮"},{"id":"s096","name":"সূরা আল-আলাক","cat":"sura","t":1,"r":false,"d":false,"a":["ٱقْرَأْ بِٱسْمِ رَبِّكَ ٱلَّذِى خَلَقَ","خَلَقَ ٱلْإِنسَٰنَ مِنْ عَلَقٍ","ٱقْرَأْ وَرَبُّكَ ٱلْأَكْرَمُ","ٱلَّذِى عَلَّمَ بِٱلْقَلَمِ","عَلَّمَ ٱلْإِنسَٰنَ مَا لَمْ يَعْلَمْ","كَلَّآ إِنَّ ٱلْإِنسَٰنَ لَيَطْغَىٰٓ","أَن رَّءَاهُ ٱسْتَغْنَىٰٓ","إِنَّ إِلَىٰ رَبِّكَ ٱلرُّجْعَىٰٓ","أَرَءَيْتَ ٱلَّذِى يَنْهَىٰ","عَبْدًا إِذَا صَلَّىٰٓ","أَرَءَيْتَ إِن كَانَ عَلَى ٱلْهُدَىٰٓ","أَوْ أَمَرَ بِٱلتَّقْوَىٰٓ","أَرَءَيْتَ إِن كَذَّبَ وَتَوَلَّىٰٓ","أَلَمْ يَعْلَم بِأَنَّ ٱللَّهَ يَرَىٰ","كَلَّا لَئِن لَّمْ يَنتَهِ لَنَسْفَعًۢا بِٱلنَّاصِيَةِ","نَاصِيَةٍ كَٰذِبَةٍ خَاطِئَةٍ","فَلْيَدْعُ نَادِيَهُۥ","سَنَدْعُ ٱلزَّبَانِيَةَ","كَلَّا لَا تُطِعْهُ وَٱسْجُدْ وَٱقْتَرِب ۩"],"u":["ইকরা বিসমি রাব্বিকাল্লাযী খালাক","খালাকাল ইনসানা মিন আলাক","ইকরা ওয়া রাব্বুকাল আকরাম","আল্লাযী আল্লামা বিল কালাম","আল্লামাল ইনসানা মা লাম ইয়া'লাম","কাল্লা ইন্নাল ইনসানা লাইয়াতগা","আর-রাআহুস তাগনা","ইন্না ইলা রাব্বিকার রুজ'আ","আরাআইতাল্লাযী ইয়ানহা","আবদান ইযা সাল্লা","আরাআইতা ইন কানা আলাল হুদা","আও আমারা বিত-তাকওয়া","আরাআইতা ইন কাযযাবা ওয়া তাওয়াল্লা","আলাম ইয়া'লাম বিআন্নাল্লাহা ইয়ারা","কাল্লা লাইল্লাম ইয়ানতাহি লানাসফা'আম বিন-নাসিয়াহ","নাসিয়াতিন কাযিবাতিন খাতিয়াহ","ফালইয়াদ'উ নাদিয়াহ","সানাদ'উয যাবানিয়াহ","কাল্লা লা তুতি'হু ওয়াসজুদ ওয়াকতারিব"],"m":["পড়ুন আপনার রবের নামে, যিনি সৃষ্টি করেছেন।","সৃষ্টি করেছেন মানুষকে জমাট রক্ত থেকে।","পড়ুন, আর আপনার রব মহা সম্মানিত,","যিনি কলমের মাধ্যমে শিক্ষা দিয়েছেন।","শিক্ষা দিয়েছেন মানুষকে যা সে জানত না।","না, বরং মানুষ সীমালঙ্ঘন করে,","কারণ সে নিজেকে অভাবমুক্ত মনে করে।","নিশ্চয়ই আপনার রবের কাছেই ফিরে যেতে হবে।","আপনি কি তাকে দেখেছেন, যে নিষেধ করে","এক বান্দাকে, যখন সে নামাজ পড়ে?","আপনি কি দেখেছেন, যদি সে হেদায়েতের উপর থাকে","অথবা তাকওয়ার নির্দেশ দেয়?","আপনি কি দেখেছেন, যদি সে অস্বীকার করে ও মুখ ফিরিয়ে নেয়?","সে কি জানে না যে আল্লাহ দেখছেন?","না, সে যদি বিরত না হয়, তবে আমি অবশ্যই তার কপালের চুল ধরে টেনে নেব,","মিথ্যাবাদী, পাপী কপালের চুল।","তখন সে তার সঙ্গী-সাথীদের ডাকুক।","আমিও ডাকব জাহান্নামের প্রহরীদের।","না, তার কথা মানবেন না; সিজদা করুন ও (আল্লাহর) নৈকট্য লাভ করুন।"],"s":"কুরআন ৯৬:১-১৯ (১৯ নং আয়াতে তিলাওয়াতের সিজদা)"},{"id":"s097","name":"সূরা আল-কদর","cat":"sura","t":1,"r":false,"d":false,"a":["إِنَّآ أَنزَلْنَٰهُ فِى لَيْلَةِ ٱلْقَدْرِ","وَمَآ أَدْرَىٰكَ مَا لَيْلَةُ ٱلْقَدْرِ","لَيْلَةُ ٱلْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ","تَنَزَّلُ ٱلْمَلَٰٓئِكَةُ وَٱلرُّوحُ فِيهَا بِإِذْنِ رَبِّهِم مِّن كُلِّ أَمْرٍ","سَلَٰمٌ هِىَ حَتَّىٰ مَطْلَعِ ٱلْفَجْرِ"],"u":["ইন্না আনযালনাহু ফী লাইলাতিল কাদর","ওয়ামা আদরাকা মা লাইলাতুল কাদর","লাইলাতুল কাদরি খাইরুম মিন আলফি শাহর","তানাযযালুল মালাইকাতু ওয়ার-রূহু ফীহা বিইযনি রাব্বিহিম মিন কুল্লি আমর","সালামুন হিয়া হাত্তা মাতলাইল ফাজর"],"m":["নিশ্চয়ই আমি এটি (কুরআন) নাযিল করেছি কদরের রাতে।","আর আপনি কি জানেন কদরের রাত কী?","কদরের রাত হাজার মাসের চেয়ে উত্তম।","সে রাতে ফেরেশতারা ও রূহ (জিবরাইল) প্রতিটি কাজের জন্য তাদের রবের অনুমতিক্রমে অবতরণ করে।","শান্তিই শান্তি, ফজরের উদয় পর্যন্ত।"],"s":"কুরআন ৯৭:১-৫"},{"id":"s098","name":"সূরা আল-বাইয়্যিনাহ","cat":"sura","t":1,"r":false,"d":false,"a":["لَمْ يَكُنِ ٱلَّذِينَ كَفَرُوا۟ مِنْ أَهْلِ ٱلْكِتَٰبِ وَٱلْمُشْرِكِينَ مُنفَكِّينَ حَتَّىٰ تَأْتِيَهُمُ ٱلْبَيِّنَةُ","رَسُولٌ مِّنَ ٱللَّهِ يَتْلُوا۟ صُحُفًا مُّطَهَّرَةً","فِيهَا كُتُبٌ قَيِّمَةٌ","وَمَا تَفَرَّقَ ٱلَّذِينَ أُوتُوا۟ ٱلْكِتَٰبَ إِلَّا مِنۢ بَعْدِ مَا جَآءَتْهُمُ ٱلْبَيِّنَةُ","وَمَآ أُمِرُوٓا۟ إِلَّا لِيَعْبُدُوا۟ ٱللَّهَ مُخْلِصِينَ لَهُ ٱلدِّينَ حُنَفَآءَ وَيُقِيمُوا۟ ٱلصَّلَوٰةَ وَيُؤْتُوا۟ ٱلزَّكَوٰةَ ۚ وَذَٰلِكَ دِينُ ٱلْقَيِّمَةِ","إِنَّ ٱلَّذِينَ كَفَرُوا۟ مِنْ أَهْلِ ٱلْكِتَٰبِ وَٱلْمُشْرِكِينَ فِى نَارِ جَهَنَّمَ خَٰلِدِينَ فِيهَآ ۚ أُو۟لَٰٓئِكَ هُمْ شَرُّ ٱلْبَرِيَّةِ","إِنَّ ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ أُو۟لَٰٓئِكَ هُمْ خَيْرُ ٱلْبَرِيَّةِ","جَزَآؤُهُمْ عِندَ رَبِّهِمْ جَنَّٰتُ عَدْنٍ تَجْرِى مِن تَحْتِهَا ٱلْأَنْهَٰرُ خَٰلِدِينَ فِيهَآ أَبَدًا ۖ رَّضِىَ ٱللَّهُ عَنْهُمْ وَرَضُوا۟ عَنْهُ ۚ ذَٰلِكَ لِمَنْ خَشِىَ رَبَّهُۥ"],"u":["লাম ইয়াকুনিল্লাযীনা কাফারূ মিন আহলিল কিতাবি ওয়াল মুশরিকীনা মুনফাক্কীনা হাত্তা তা'তিয়াহুমুল বাইয়্যিনাহ","রাসূলুম মিনাল্লাহি ইয়াতলূ সুহুফাম মুতাহহারাহ","ফীহা কুতুবুন কাইয়্যিমাহ","ওয়ামা তাফাররাকাল্লাযীনা ঊতুল কিতাবা ইল্লা মিম বা'দি মা জাআতহুমুল বাইয়্যিনাহ","ওয়ামা উমিরূ ইল্লা লিইয়া'বুদুল্লাহা মুখলিসীনা লাহুদ দীনা হুনাফাআ ওয়া ইউকীমুস সালাতা ওয়া ইউ'তুয যাকাতা ওয়া যালিকা দীনুল কাইয়্যিমাহ","ইন্নাল্লাযীনা কাফারূ মিন আহলিল কিতাবি ওয়াল মুশরিকীনা ফী নারি জাহান্নামা খালিদীনা ফীহা, উলাইকা হুম শাররুল বারিয়্যাহ","ইন্নাল্লাযীনা আমানূ ওয়া আমিলুস সালিহাতি উলাইকা হুম খাইরুল বারিয়্যাহ","জাযাউহুম ইনদা রাব্বিহিম জান্নাতু আদনিন তাজরী মিন তাহতিহাল আনহারু খালিদীনা ফীহা আবাদা, রাদিয়াল্লাহু আনহুম ওয়া রাদূ আনহু, যালিকা লিমান খাশিয়া রাব্বাহ"],"m":["আহলে কিতাব ও মুশরিকদের মধ্যে যারা কুফরি করেছিল, তারা (নিজেদের অবস্থা থেকে) সরে আসত না, যতক্ষণ না তাদের কাছে সুস্পষ্ট প্রমাণ আসে—","আল্লাহর পক্ষ থেকে একজন রাসূল, যিনি পবিত্র সহিফাসমূহ পাঠ করেন,","যাতে আছে সঠিক ও মূল্যবান বিধান।","আর যাদের কিতাব দেওয়া হয়েছিল, তারা বিভেদ করেছে কেবল তাদের কাছে সুস্পষ্ট প্রমাণ আসার পরেই।","তাদের তো এই আদেশই দেওয়া হয়েছিল যে, তারা একনিষ্ঠভাবে আল্লাহর ইবাদত করবে, একমাত্র তাঁরই জন্য দ্বীনকে খাঁটি করে, নামাজ কায়েম করবে ও যাকাত দেবে; আর এটাই সঠিক দ্বীন।","আহলে কিতাব ও মুশরিকদের মধ্যে যারা কুফরি করেছে, তারা জাহান্নামের আগুনে স্থায়ীভাবে থাকবে; তারাই সৃষ্টির মধ্যে সবচেয়ে নিকৃষ্ট।","আর যারা ঈমান এনেছে ও সৎকর্ম করেছে, তারাই সৃষ্টির মধ্যে সর্বোত্তম।","তাদের প্রতিদান তাদের রবের কাছে চিরস্থায়ী জান্নাত, যার নিচ দিয়ে নদী বয়ে যায়; তারা সেখানে চিরকাল থাকবে। আল্লাহ তাদের উপর সন্তুষ্ট এবং তারাও তাঁর উপর সন্তুষ্ট। এটা তার জন্য, যে তার রবকে ভয় করে।"],"s":"কুরআন ৯৮:১-৮"},{"id":"s099","name":"সূরা আয-যিলযাল","cat":"sura","t":1,"r":false,"d":false,"a":["إِذَا زُلْزِلَتِ ٱلْأَرْضُ زِلْزَالَهَا","وَأَخْرَجَتِ ٱلْأَرْضُ أَثْقَالَهَا","وَقَالَ ٱلْإِنسَٰنُ مَا لَهَا","يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا","بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا","يَوْمَئِذٍ يَصْدُرُ ٱلنَّاسُ أَشْتَاتًا لِّيُرَوْا۟ أَعْمَٰلَهُمْ","فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُۥ","وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُۥ"],"u":["ইযা যুলযিলাতিল আরদু যিলযালাহা","ওয়া আখরাজাতিল আরদু আসকালাহা","ওয়া কালাল ইনসানু মা লাহা","ইয়াওমাইযিন তুহাদ্দিসু আখবারাহা","বিআন্না রাব্বাকা আওহা লাহা","ইয়াওমাইযিই ইয়াসদুরুন নাসু আশতাতাল লিইউরাও আ'মালাহুম","ফামাই ইয়া'মাল মিসকালা যাররাতিন খাইরাই ইয়ারাহ","ওয়া মাই ইয়া'মাল মিসকালা যাররাতিন শাররাই ইয়ারাহ"],"m":["যখন পৃথিবীকে তার প্রচণ্ড কম্পনে কাঁপিয়ে দেওয়া হবে,","আর পৃথিবী তার বোঝা বের করে দেবে,","আর মানুষ বলবে, “এর কী হলো?”","সেদিন সে তার সব খবর বলে দেবে,","কারণ আপনার রব তাকে আদেশ দিয়েছেন।","সেদিন মানুষ দলে দলে বের হবে, যাতে তাদের কৃতকর্ম তাদের দেখানো হয়।","অতএব যে অণু পরিমাণ ভালো কাজ করবে, সে তা দেখতে পাবে।","আর যে অণু পরিমাণ মন্দ কাজ করবে, সেও তা দেখতে পাবে।"],"s":"কুরআন ৯৯:১-৮"},{"id":"s100","name":"সূরা আল-আদিয়াত","cat":"sura","t":1,"r":false,"d":false,"a":["وَٱلْعَٰدِيَٰتِ ضَبْحًا","فَٱلْمُورِيَٰتِ قَدْحًا","فَٱلْمُغِيرَٰتِ صُبْحًا","فَأَثَرْنَ بِهِۦ نَقْعًا","فَوَسَطْنَ بِهِۦ جَمْعًا","إِنَّ ٱلْإِنسَٰنَ لِرَبِّهِۦ لَكَنُودٌ","وَإِنَّهُۥ عَلَىٰ ذَٰلِكَ لَشَهِيدٌ","وَإِنَّهُۥ لِحُبِّ ٱلْخَيْرِ لَشَدِيدٌ","۞ أَفَلَا يَعْلَمُ إِذَا بُعْثِرَ مَا فِى ٱلْقُبُورِ","وَحُصِّلَ مَا فِى ٱلصُّدُورِ","إِنَّ رَبَّهُم بِهِمْ يَوْمَئِذٍ لَّخَبِيرٌۢ"],"u":["ওয়াল আদিয়াতি দ্ববহা","ফালমুরিয়াতি কাদহা","ফালমুগীরাতি সুবহা","ফাআসারনা বিহী নাকআ","ফাওয়াসাতনা বিহী জাম'আ","ইন্নাল ইনসানা লিরাব্বিহী লাকানূদ","ওয়া ইন্নাহু আলা যালিকা লাশাহীদ","ওয়া ইন্নাহু লিহুব্বিল খাইরি লাশাদীদ","আফালা ইয়া'লামু ইযা বু'সিরা মা ফিল কুবূর","ওয়া হুসসিলা মা ফিস সুদূর","ইন্না রাব্বাহুম বিহিম ইয়াওমাইযিল লাখাবীর"],"m":["শপথ সেই (যুদ্ধের) ঘোড়াগুলোর, যারা হাঁপাতে হাঁপাতে ছুটে,","তারপর যারা (খুরের আঘাতে) আগুনের স্ফুলিঙ্গ ছড়ায়,","তারপর যারা ভোরবেলা আক্রমণ করে,","তারপর তা দিয়ে ধুলো উড়ায়,","তারপর শত্রুদলের মাঝে ঢুকে পড়ে—","নিশ্চয়ই মানুষ তার রবের প্রতি বড়ই অকৃতজ্ঞ।","আর সে নিজেই এর সাক্ষী।","আর সে ধন-সম্পদের ভালোবাসায় অত্যন্ত আসক্ত।","সে কি জানে না, কবরে যা আছে তা যখন উঠানো হবে","আর অন্তরে যা আছে তা প্রকাশ করা হবে?","সেদিন তাদের রব তাদের সম্পর্কে পূর্ণ অবগত থাকবেন।"],"s":"কুরআন ১০০:১-১১"},{"id":"s101","name":"সূরা আল-কারিআহ","cat":"sura","t":1,"r":false,"d":false,"a":["ٱلْقَارِعَةُ","مَا ٱلْقَارِعَةُ","وَمَآ أَدْرَىٰكَ مَا ٱلْقَارِعَةُ","يَوْمَ يَكُونُ ٱلنَّاسُ كَٱلْفَرَاشِ ٱلْمَبْثُوثِ","وَتَكُونُ ٱلْجِبَالُ كَٱلْعِهْنِ ٱلْمَنفُوشِ","فَأَمَّا مَن ثَقُلَتْ مَوَٰزِينُهُۥ","فَهُوَ فِى عِيشَةٍ رَّاضِيَةٍ","وَأَمَّا مَنْ خَفَّتْ مَوَٰزِينُهُۥ","فَأُمُّهُۥ هَاوِيَةٌ","وَمَآ أَدْرَىٰكَ مَا هِيَهْ","نَارٌ حَامِيَةٌۢ"],"u":["আল-কারিআহ","মাল কারিআহ","ওয়ামা আদরাকা মাল কারিআহ","ইয়াওমা ইয়াকূনুন নাসু কালফারাশিল মাবসূস","ওয়া তাকূনুল জিবালু কালইহনিল মানফূশ","ফাআম্মা মান সাকুলাত মাওয়াযীনুহ","ফাহুয়া ফী ঈশাতির রাদিয়াহ","ওয়া আম্মা মান খাফফাত মাওয়াযীনুহ","ফাউম্মুহূ হাবিয়াহ","ওয়ামা আদরাকা মা হিয়াহ","নারুন হামিয়াহ"],"m":["মহাপ্রলয়!","মহাপ্রলয় কী?","আর আপনি কি জানেন মহাপ্রলয় কী?","সেদিন মানুষ হবে বিক্ষিপ্ত পতঙ্গের মতো,","আর পাহাড়গুলো হবে ধুনে ফেলা রঙিন পশমের মতো।","তখন যার (সৎকর্মের) পাল্লা ভারী হবে,","সে থাকবে সন্তোষজনক জীবনে।","আর যার পাল্লা হালকা হবে,","তার ঠিকানা হবে হাবিয়া (জাহান্নাম)।","আর আপনি কি জানেন তা কী?","তা এক প্রজ্বলিত আগুন।"],"s":"কুরআন ১০১:১-১১"},{"id":"s102","name":"সূরা আত-তাকাসুর","cat":"sura","t":1,"r":false,"d":false,"a":["أَلْهَىٰكُمُ ٱلتَّكَاثُرُ","حَتَّىٰ زُرْتُمُ ٱلْمَقَابِرَ","كَلَّا سَوْفَ تَعْلَمُونَ","ثُمَّ كَلَّا سَوْفَ تَعْلَمُونَ","كَلَّا لَوْ تَعْلَمُونَ عِلْمَ ٱلْيَقِينِ","لَتَرَوُنَّ ٱلْجَحِيمَ","ثُمَّ لَتَرَوُنَّهَا عَيْنَ ٱلْيَقِينِ","ثُمَّ لَتُسْـَٔلُنَّ يَوْمَئِذٍ عَنِ ٱلنَّعِيمِ"],"u":["আলহাকুমুত তাকাসুর","হাত্তা যুরতুমুল মাকাবির","কাল্লা সাওফা তা'লামূন","সুম্মা কাল্লা সাওফা তা'লামূন","কাল্লা লাউ তা'লামূনা ইলমাল ইয়াকীন","লাতারাউন্নাল জাহীম","সুম্মা লাতারাউন্নাহা আইনাল ইয়াকীন","সুম্মা লাতুসআলুন্না ইয়াওমাইযিন আনিন নাঈম"],"m":["প্রাচুর্যের প্রতিযোগিতা তোমাদের উদাসীন রেখেছে,","যতক্ষণ না তোমরা কবরে পৌঁছাও।","না, তোমরা শীঘ্রই জানতে পারবে।","আবার বলি, না, তোমরা শীঘ্রই জানতে পারবে।","না, যদি তোমরা নিশ্চিত জ্ঞানে জানতে (তাহলে এমন করতে না)।","তোমরা অবশ্যই জাহান্নাম দেখবে।","তারপর অবশ্যই তা চাক্ষুষ নিশ্চিতভাবে দেখবে।","তারপর সেদিন অবশ্যই তোমাদের নেয়ামত সম্পর্কে জিজ্ঞাসা করা হবে।"],"s":"কুরআন ১০২:১-৮"},{"id":"s103","name":"সূরা আল-আসর","cat":"sura","t":1,"r":false,"d":false,"a":["وَٱلْعَصْرِ","إِنَّ ٱلْإِنسَٰنَ لَفِى خُسْرٍ","إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ"],"u":["ওয়াল আসর","ইন্নাল ইনসানা লাফী খুসর","ইল্লাল্লাযীনা আমানূ ওয়া আমিলুস সালিহাতি ওয়া তাওয়াসাও বিলহাক্কি ওয়া তাওয়াসাও বিস-সাবর"],"m":["শপথ সময়ের (আসরের),","নিশ্চয়ই মানুষ ক্ষতির মধ্যে আছে,","তবে তারা নয়, যারা ঈমান এনেছে, সৎকর্ম করেছে এবং একে অপরকে সত্যের উপদেশ দিয়েছে ও ধৈর্যের উপদেশ দিয়েছে।"],"s":"কুরআন ১০৩:১-৩"},{"id":"s104","name":"সূরা আল-হুমাযাহ","cat":"sura","t":1,"r":false,"d":false,"a":["وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍ","ٱلَّذِى جَمَعَ مَالًا وَعَدَّدَهُۥ","يَحْسَبُ أَنَّ مَالَهُۥٓ أَخْلَدَهُۥ","كَلَّا ۖ لَيُنۢبَذَنَّ فِى ٱلْحُطَمَةِ","وَمَآ أَدْرَىٰكَ مَا ٱلْحُطَمَةُ","نَارُ ٱللَّهِ ٱلْمُوقَدَةُ","ٱلَّتِى تَطَّلِعُ عَلَى ٱلْأَفْـِٔدَةِ","إِنَّهَا عَلَيْهِم مُّؤْصَدَةٌ","فِى عَمَدٍ مُّمَدَّدَةٍۭ"],"u":["ওয়াইলুল লিকুল্লি হুমাযাতিল লুমাযাহ","আল্লাযী জামা'আ মালাঁও ওয়া আদ্দাদাহ","ইয়াহসাবু আন্না মালাহূ আখলাদাহ","কাল্লা লাইউমবাযান্না ফিল হুতামাহ","ওয়ামা আদরাকা মাল হুতামাহ","নারুল্লাহিল মূকাদাহ","আল্লাতী তাত্তালিউ আলাল আফইদাহ","ইন্নাহা আলাইহিম মু'সাদাহ","ফী আমাদিম মুমাদ্দাদাহ"],"m":["ধ্বংস প্রত্যেক এমন ব্যক্তির জন্য, যে পেছনে নিন্দা করে ও সামনে দোষ খোঁজে,","যে সম্পদ জমায় ও বারবার গুনে রাখে।","সে মনে করে, তার সম্পদ তাকে চিরস্থায়ী করবে।","কখনো না! তাকে অবশ্যই 'হুতামা'-তে নিক্ষেপ করা হবে।","আর আপনি কি জানেন হুতামা কী?","তা আল্লাহর প্রজ্বলিত আগুন,","যা হৃদয় পর্যন্ত পৌঁছে যাবে।","তা তাদের উপর চারদিক থেকে বন্ধ করে দেওয়া হবে,","উঁচু উঁচু স্তম্ভের মধ্যে।"],"s":"কুরআন ১০৪:১-৯"},{"id":"s105","name":"সূরা আল-ফীল","cat":"sura","t":1,"r":false,"d":false,"a":["أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَٰبِ ٱلْفِيلِ","أَلَمْ يَجْعَلْ كَيْدَهُمْ فِى تَضْلِيلٍ","وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ","تَرْمِيهِم بِحِجَارَةٍ مِّن سِجِّيلٍ","فَجَعَلَهُمْ كَعَصْفٍ مَّأْكُولٍۭ"],"u":["আলাম তারা কাইফা ফা'আলা রাব্বুকা বিআসহাবিল ফীল","আলাম ইয়াজ'আল কাইদাহুম ফী তাদলীল","ওয়া আরসালা আলাইহিম তাইরান আবাবীল","তারমীহিম বিহিজারাতিম মিন সিজ্জীল","ফাজা'আলাহুম কাআসফিম মা'কূল"],"m":["আপনি কি দেখেননি, আপনার রব হাতিওয়ালাদের সাথে কেমন আচরণ করেছেন?","তিনি কি তাদের চক্রান্ত ব্যর্থ করে দেননি?","আর তিনি তাদের উপর ঝাঁকে ঝাঁকে পাখি পাঠিয়েছিলেন,","যারা তাদের উপর পাকানো মাটির পাথর নিক্ষেপ করছিল।","তারপর তিনি তাদের করে দিলেন চিবানো ভুসির মতো।"],"s":"কুরআন ১০৫:১-৫"},{"id":"s106","name":"সূরা কুরাইশ","cat":"sura","t":1,"r":false,"d":false,"a":["لِإِيلَٰفِ قُرَيْشٍ","إِۦلَٰفِهِمْ رِحْلَةَ ٱلشِّتَآءِ وَٱلصَّيْفِ","فَلْيَعْبُدُوا۟ رَبَّ هَٰذَا ٱلْبَيْتِ","ٱلَّذِىٓ أَطْعَمَهُم مِّن جُوعٍ وَءَامَنَهُم مِّنْ خَوْفٍۭ"],"u":["লি-ঈলাফি কুরাইশ","ঈলাফিহিম রিহলাতাশ শিতাই ওয়াস সাইফ","ফালইয়া'বুদূ রাব্বা হাযাল বাইত","আল্লাযী আত'আমাহুম মিন জূ'ঈন ওয়া আমানাহুম মিন খাউফ"],"m":["কুরাইশের নিরাপত্তা-অভ্যাসের কারণে,","শীত ও গ্রীষ্মের সফরের নিরাপত্তা-অভ্যাসের কারণে—","তাদের উচিত এই ঘরের (কাবার) রবের ইবাদত করা,","যিনি তাদের ক্ষুধায় খাবার দিয়েছেন এবং ভয় থেকে নিরাপত্তা দিয়েছেন।"],"s":"কুরআন ১০৬:১-৪"},{"id":"s107","name":"সূরা আল-মাঊন","cat":"sura","t":1,"r":false,"d":false,"a":["أَرَءَيْتَ ٱلَّذِى يُكَذِّبُ بِٱلدِّينِ","فَذَٰلِكَ ٱلَّذِى يَدُعُّ ٱلْيَتِيمَ","وَلَا يَحُضُّ عَلَىٰ طَعَامِ ٱلْمِسْكِينِ","فَوَيْلٌ لِّلْمُصَلِّينَ","ٱلَّذِينَ هُمْ عَن صَلَاتِهِمْ سَاهُونَ","ٱلَّذِينَ هُمْ يُرَآءُونَ","وَيَمْنَعُونَ ٱلْمَاعُونَ"],"u":["আরাআইতাল্লাযী ইউকাযযিবু বিদ-দীন","ফাযালিকাল্লাযী ইয়াদু'উল ইয়াতীম","ওয়ালা ইয়াহুদ্দু আলা তা'আমিল মিসকীন","ফাওয়াইলুল লিল মুসাল্লীন","আল্লাযীনা হুম আন সালাতিহিম সাহূন","আল্লাযীনা হুম ইউরাঊন","ওয়া ইয়ামনা'ঊনাল মাঊন"],"m":["আপনি কি তাকে দেখেছেন, যে কর্মফল দিবসকে অস্বীকার করে?","সে-ই তো ইয়াতীমকে ধাক্কা দেয়,","আর মিসকিনকে খাবার দিতে উৎসাহ দেয় না।","অতএব ধ্বংস সেই নামাজিদের জন্য,","যারা নিজেদের নামাজ সম্পর্কে উদাসীন,","যারা লোক দেখানোর জন্য করে,","আর ছোটখাটো প্রয়োজনীয় জিনিস (সাহায্য) দিতে বাধা দেয়।"],"s":"কুরআন ১০৭:১-৭"},{"id":"s108","name":"সূরা আল-কাউসার","cat":"sura","t":1,"r":false,"d":false,"a":["إِنَّآ أَعْطَيْنَٰكَ ٱلْكَوْثَرَ","فَصَلِّ لِرَبِّكَ وَٱنْحَرْ","إِنَّ شَانِئَكَ هُوَ ٱلْأَبْتَرُ"],"u":["ইন্না আ'তাইনাকাল কাওসার","ফাসাল্লি লিরাব্বিকা ওয়ানহার","ইন্না শানিআকা হুওয়াল আবতার"],"m":["নিশ্চয়ই আমি আপনাকে কাওসার দান করেছি।","অতএব আপনার রবের উদ্দেশে নামাজ পড়ুন ও কুরবানি করুন।","নিশ্চয়ই আপনার শত্রুই তো লেজকাটা (নির্বংশ)।"],"s":"কুরআন ১০৮:১-৩"},{"id":"s109","name":"সূরা আল-কাফিরূন","cat":"sura","t":1,"r":false,"d":false,"a":["قُلْ يَٰٓأَيُّهَا ٱلْكَٰفِرُونَ","لَآ أَعْبُدُ مَا تَعْبُدُونَ","وَلَآ أَنتُمْ عَٰبِدُونَ مَآ أَعْبُدُ","وَلَآ أَنَا۠ عَابِدٌ مَّا عَبَدتُّمْ","وَلَآ أَنتُمْ عَٰبِدُونَ مَآ أَعْبُدُ","لَكُمْ دِينُكُمْ وَلِىَ دِينِ"],"u":["কুল ইয়া আইয়্যুহাল কাফিরূন","লা আ'বুদু মা তা'বুদূন","ওয়ালা আনতুম আবিদূনা মা আ'বুদ","ওয়ালা আনা আবিদুম মা আবাদতুম","ওয়ালা আনতুম আবিদূনা মা আ'বুদ","লাকুম দীনুকুম ওয়ালিয়া দীন"],"m":["বলুন, হে কাফিররা!","আমি তার ইবাদত করি না, যার ইবাদত তোমরা করো।","আর তোমরাও তাঁর ইবাদতকারী নও, যাঁর ইবাদত আমি করি।","আর আমি তার ইবাদতকারী হব না, যার ইবাদত তোমরা করেছ।","আর তোমরাও তাঁর ইবাদতকারী হবে না, যাঁর ইবাদত আমি করি।","তোমাদের দ্বীন তোমাদের, আমার দ্বীন আমার।"],"s":"কুরআন ১০৯:১-৬"},{"id":"s110","name":"সূরা আন-নাসর","cat":"sura","t":1,"r":false,"d":false,"a":["إِذَا جَآءَ نَصْرُ ٱللَّهِ وَٱلْفَتْحُ","وَرَأَيْتَ ٱلنَّاسَ يَدْخُلُونَ فِى دِينِ ٱللَّهِ أَفْوَاجًا","فَسَبِّحْ بِحَمْدِ رَبِّكَ وَٱسْتَغْفِرْهُ ۚ إِنَّهُۥ كَانَ تَوَّابًۢا"],"u":["ইযা জাআ নাসরুল্লাহি ওয়াল ফাতহ","ওয়া রাআইতান নাসা ইয়াদখুলূনা ফী দীনিল্লাহি আফওয়াজা","ফাসাব্বিহ বিহামদি রাব্বিকা ওয়াসতাগফিরহু, ইন্নাহূ কানা তাওওয়াবা"],"m":["যখন আল্লাহর সাহায্য ও বিজয় আসবে,","আর আপনি মানুষকে দলে দলে আল্লাহর দ্বীনে প্রবেশ করতে দেখবেন,","তখন আপনার রবের প্রশংসাসহ তাসবিহ পড়ুন ও তাঁর কাছে ক্ষমা চান; নিশ্চয়ই তিনি তাওবা কবুলকারী।"],"s":"কুরআন ১১০:১-৩"},{"id":"s111","name":"সূরা আল-লাহাব (মাসাদ)","cat":"sura","t":1,"r":false,"d":false,"a":["تَبَّتْ يَدَآ أَبِى لَهَبٍ وَتَبَّ","مَآ أَغْنَىٰ عَنْهُ مَالُهُۥ وَمَا كَسَبَ","سَيَصْلَىٰ نَارًا ذَاتَ لَهَبٍ","وَٱمْرَأَتُهُۥ حَمَّالَةَ ٱلْحَطَبِ","فِى جِيدِهَا حَبْلٌ مِّن مَّسَدٍۭ"],"u":["তাব্বাত ইয়াদা আবী লাহাবিঁও ওয়া তাব্ব","মা আগনা আনহু মালুহূ ওয়ামা কাসাব","সাইয়াসলা নারান যাতা লাহাব","ওয়ামরাআতুহূ হাম্মালাতাল হাতাব","ফী জীদিহা হাবলুম মিম মাসাদ"],"m":["আবু লাহাবের দুই হাত ধ্বংস হোক, আর সেও ধ্বংস হোক।","তার সম্পদ ও তার উপার্জন তার কোনো কাজে আসেনি।","সে শীঘ্রই লেলিহান আগুনে প্রবেশ করবে,","আর তার স্ত্রীও—যে ইন্ধন (কাঠ) বহন করে,","তার গলায় থাকবে পাকানো খেজুর-ডালের রশি।"],"s":"কুরআন ১১১:১-৫"},{"id":"ikhlas","name":"সূরা আল-ইখলাস","cat":"sura","t":3,"r":false,"d":true,"a":["قُلْ هُوَ ٱللَّهُ أَحَدٌ","ٱللَّهُ ٱلصَّمَدُ","لَمْ يَلِدْ وَلَمْ يُولَدْ","وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ"],"u":["কুল হুওয়াল্লাহু আহাদ","আল্লাহুস সামাদ","লাম ইয়ালিদ ওয়া লাম ইউলাদ","ওয়া লাম ইয়াকুল লাহূ কুফুওয়ান আহাদ"],"m":["বলুন, তিনি আল্লাহ, এক ও অদ্বিতীয়।","আল্লাহ কারো মুখাপেক্ষী নন, সবাই তাঁর মুখাপেক্ষী।","তিনি কাউকে জন্ম দেননি এবং তাঁকেও জন্ম দেওয়া হয়নি।","আর তাঁর সমকক্ষ কেউ নেই।"],"s":"কুরআন ১১২:১-৪ · সহিহ বুখারি ৫০১৩"},{"id":"s113","name":"সূরা আল-ফালাক","cat":"sura","t":1,"r":false,"d":false,"a":["قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ","مِن شَرِّ مَا خَلَقَ","وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ","وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِى ٱلْعُقَدِ","وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ"],"u":["কুল আউযু বিরাব্বিল ফালাক","মিন শাররি মা খালাক","ওয়ামিন শাররি গাসিকিন ইযা ওয়াকাব","ওয়ামিন শাররিন নাফফাসাতি ফিল উকাদ","ওয়ামিন শাররি হাসিদিন ইযা হাসাদ"],"m":["বলুন, আমি আশ্রয় চাই ভোরের রবের কাছে,","তিনি যা সৃষ্টি করেছেন তার অনিষ্ট থেকে,","আর অন্ধকার রাতের অনিষ্ট থেকে, যখন তা ছেয়ে যায়,","আর গিরায় ফুঁ দেওয়া জাদুকর নারীদের অনিষ্ট থেকে,","আর হিংসুকের অনিষ্ট থেকে, যখন সে হিংসা করে।"],"s":"কুরআন ১১৩:১-৫ · সহিহ বুখারি ৫০১৭ (ঘুমের আগে তিন কুল)"},{"id":"s114","name":"সূরা আন-নাস","cat":"sura","t":1,"r":false,"d":false,"a":["قُلْ أَعُوذُ بِرَبِّ ٱلنَّاسِ","مَلِكِ ٱلنَّاسِ","إِلَٰهِ ٱلنَّاسِ","مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ","ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ","مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ"],"u":["কুল আউযু বিরাব্বিন নাস","মালিকিন নাস","ইলাহিন নাস","মিন শাররিল ওয়াসওয়াসিল খান্নাস","আল্লাযী ইউওয়াসউইসু ফী সুদূরিন নাস","মিনাল জিন্নাতি ওয়ান নাস"],"m":["বলুন, আমি আশ্রয় চাই মানুষের রবের কাছে,","মানুষের মালিকের কাছে,","মানুষের ইলাহের কাছে,","আত্মগোপনকারী কুমন্ত্রণাদাতার অনিষ্ট থেকে,","যে মানুষের অন্তরে কুমন্ত্রণা দেয়,","জিন ও মানুষের মধ্য থেকে।"],"s":"কুরআন ১১৪:১-৬ · সহিহ বুখারি ৫০১৭ (ঘুমের আগে তিন কুল)"},{"id":"kursi","name":"আয়াতুল কুরসি","cat":"sura","t":1,"r":false,"d":false,"a":["ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ","لَا تَأْخُذُهُۥ سِنَةٌ وَلَا نَوْمٌ","لَّهُۥ مَا فِى ٱلسَّمَٰوَٰتِ وَمَا فِى ٱلْأَرْضِ","مَن ذَا ٱلَّذِى يَشْفَعُ عِندَهُۥٓ إِلَّا بِإِذْنِهِۦ","يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ","وَلَا يُحِيطُونَ بِشَىْءٍ مِّنْ عِلْمِهِۦٓ إِلَّا بِمَا شَآءَ","وَسِعَ كُرْسِيُّهُ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضَ ۖ وَلَا يَـُٔودُهُۥ حِفْظُهُمَا","وَهُوَ ٱلْعَلِىُّ ٱلْعَظِيمُ"],"u":["আল্লাহু লা ইলাহা ইল্লা হুওয়াল হাইয়্যুল কাইয়্যূম","লা তা'খুযুহূ সিনাতুঁও ওয়ালা নাউম","লাহূ মা ফিস সামাওয়াতি ওয়ামা ফিল আরদ","মান যাল্লাযী ইয়াশফা'উ ইনদাহূ ইল্লা বিইযনিহ","ইয়া'লামু মা বাইনা আইদীহিম ওয়ামা খালফাহুম","ওয়ালা ইউহীতূনা বিশাইয়িম মিন ইলমিহী ইল্লা বিমা শাআ","ওয়াসি'আ কুরসিয়্যুহুস সামাওয়াতি ওয়াল আরদ, ওয়ালা ইয়াঊদুহূ হিফযুহুমা","ওয়া হুওয়াল আলিয়্যুল আযীম"],"m":["আল্লাহ ছাড়া কোনো ইলাহ নেই; তিনি চিরঞ্জীব, সবকিছুর ধারক।","তন্দ্রা ও নিদ্রা তাঁকে স্পর্শ করে না।","আসমান ও জমিনে যা আছে সব তাঁরই।","তাঁর অনুমতি ছাড়া কে তাঁর কাছে সুপারিশ করতে পারে?","তাদের সামনে ও পেছনে যা আছে তিনি জানেন।","তিনি যা চান তা ছাড়া তাঁর জ্ঞানের কিছুই তারা আয়ত্ত করতে পারে না।","তাঁর কুরসি আসমান ও জমিন জুড়ে বিস্তৃত, আর এ দুটির রক্ষণাবেক্ষণ তাঁকে ক্লান্ত করে না।","আর তিনি সর্বোচ্চ, মহান।"],"s":"কুরআন ২:২৫৫ · সহিহ বুখারি ২৩১১"},{"id":"baqarah2","name":"সূরা বাকারার শেষ দুই আয়াত","cat":"sura","t":1,"r":false,"d":false,"a":["ءَامَنَ ٱلرَّسُولُ بِمَآ أُنزِلَ إِلَيْهِ مِن رَّبِّهِۦ وَٱلْمُؤْمِنُونَ","كُلٌّ ءَامَنَ بِٱللَّهِ وَمَلَٰٓئِكَتِهِۦ وَكُتُبِهِۦ وَرُسُلِهِۦ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِۦ","وَقَالُوا۟ سَمِعْنَا وَأَطَعْنَا ۖ غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ ٱلْمَصِيرُ","لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا ۚ لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا ٱكْتَسَبَتْ","رَبَّنَا لَا تُؤَاخِذْنَآ إِن نَّسِينَآ أَوْ أَخْطَأْنَا","رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَآ إِصْرًا كَمَا حَمَلْتَهُۥ عَلَى ٱلَّذِينَ مِن قَبْلِنَا","رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِۦ ۖ وَٱعْفُ عَنَّا وَٱغْفِرْ لَنَا وَٱرْحَمْنَآ ۚ أَنتَ مَوْلَىٰنَا فَٱنصُرْنَا عَلَى ٱلْقَوْمِ ٱلْكَٰفِرِينَ"],"u":["আমানার রাসূলু বিমা উনযিলা ইলাইহি মির রাব্বিহী ওয়াল মু'মিনূন","কুল্লুন আমানা বিল্লাহি ওয়া মালাইকাতিহী ওয়া কুতুবিহী ওয়া রুসুলিহ, লা নুফাররিকু বাইনা আহাদিম মির রুসুলিহ","ওয়া কালূ সামি'না ওয়া আতা'না, গুফরানাকা রাব্বানা ওয়া ইলাইকাল মাসীর","লা ইউকাল্লিফুল্লাহু নাফসান ইল্লা উস'আহা, লাহা মা কাসাবাত ওয়া আলাইহা মাকতাসাবাত","রাব্বানা লা তুআখিযনা ইন নাসীনা আও আখতানা","রাব্বানা ওয়ালা তাহমিল আলাইনা ইসরান কামা হামালতাহূ আলাল্লাযীনা মিন কাবলিনা","রাব্বানা ওয়ালা তুহাম্মিলনা মা লা তাকাতা লানা বিহ, ওয়া'ফু আন্না, ওয়াগফির লানা, ওয়ারহামনা, আনতা মাওলানা ফানসুরনা আলাল কাওমিল কাফিরীন"],"m":["রাসূল তাঁর রবের পক্ষ থেকে তাঁর প্রতি যা নাযিল হয়েছে তাতে ঈমান এনেছেন, আর মুমিনরাও।","সবাই ঈমান এনেছে আল্লাহ, তাঁর ফেরেশতা, তাঁর কিতাবসমূহ ও তাঁর রাসূলগণের প্রতি; (তারা বলে) আমরা তাঁর রাসূলদের মধ্যে কোনো পার্থক্য করি না।","আর তারা বলে, আমরা শুনলাম ও মানলাম; হে আমাদের রব, আপনার ক্ষমা চাই, আর আপনার কাছেই ফিরে যেতে হবে।","আল্লাহ কারো উপর তার সাধ্যের বাইরে দায়িত্ব চাপান না; সে যা অর্জন করে তার ফল সে-ই পাবে, আর যা করে তার দায়ও তার উপর।","হে আমাদের রব, আমরা ভুলে গেলে বা ভুল করলে আমাদের পাকড়াও করবেন না।","হে আমাদের রব, আমাদের আগের লোকদের উপর যেমন কঠিন বোঝা চাপিয়েছিলেন, আমাদের উপর তেমন চাপাবেন না।","হে আমাদের রব, যা বহনের সাধ্য আমাদের নেই তা আমাদের উপর চাপাবেন না। আমাদের ক্ষমা করুন, মাফ করুন ও দয়া করুন। আপনি আমাদের অভিভাবক; অতএব কাফির সম্প্রদায়ের বিরুদ্ধে আমাদের সাহায্য করুন।"],"s":"কুরআন ২:২৮৫-২৮৬ · সহিহ বুখারি ৫০০৯, সহিহ মুসলিম ৮০৭ (রাতে পড়লে যথেষ্ট)"}];
+var LIBMAP={};LIB.forEach(function(x){LIBMAP[x.id]=x});
+var OLDB={kalima:1,dua1:1};
+var ICON={
+home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+dhikr:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/>',
+cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+stats:'<path d="M5 20V11M12 20V4M19 20v-6"/>',
+set:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>'};
+var TABS=[['home','হোম'],['dhikr','জিকির'],['cal','ক্যালেন্ডার'],['stats','হিসাব'],['set','সেটিংস']];
+var CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function bn(n){return String(n).replace(/\d/g,function(d){return '০১২৩৪৫৬৭৮৯'[d]})}
+function pad(n){return String(n).padStart(2,'0')}
+function dkey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function addDays(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x}
+function pct(p){return bn(Math.round(p*100))+'%'}
+function mins(t){var a=String(t||'0:0').split(':');return (+a[0])*60+(+a[1]||0)}
+function fmtT(t){var m=mins(t),h=Math.floor(m/60),mm=m%60,ap=h>=12?'PM':'AM';h=h%12||12;return bn(h)+':'+bn(pad(mm))+' '+ap}
+function fmtDate(d){return bn(d.getDate())+' '+MONTHS[d.getMonth()]+' '+bn(d.getFullYear())}
+function until(at){var m=Math.max(0,Math.round((at-new Date())/60000));if(m<1)return 'এখনই';if(m<60)return bn(m)+' মিনিট পর';return bn(Math.floor(m/60))+' ঘণ্টা '+(m%60?bn(m%60)+' মিনিট ':'')+'পর'}
+function uid(){return 'x'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36)}
+
+/* ---------- state ---------- */
+var mem=null;
+function readRaw(){try{return localStorage.getItem(KEY)}catch(e){return mem}}
+function writeRaw(v){mem=v;try{localStorage.setItem(KEY,v)}catch(e){}}
+function hyd(old){
+  var by={};(old||[]).forEach(function(x){by[x.id]=x});
+  var out=LIB.map(function(L){var o=by[L.id]||{};
+    return {id:L.id,name:L.name,cat:L.cat,lib:1,target:(o.target>0?o.target:L.t),remind:(o.remind!=null?o.remind:!!L.r),goal:(o.goal!=null?o.goal:!!L.d)}});
+  (old||[]).forEach(function(x){if(!LIBMAP[x.id]&&!OLDB[x.id])out.push(Object.assign({goal:true},x,{cat:'mine'}))});
+  return out}
+function lines(d){var L=LIBMAP[d.id];if(L)return L;return {a:d.arabic?[d.arabic]:[],u:[],m:d.meaning?[d.meaning]:[],s:''}}
+function seed(){
+  var today=new Date(),S={v:1,dhikrs:hyd([]),ver2:1,habits:{},logs:{},prayers:{},done:{},tasks:[],
+    set:{remind:true,interval:20,from:'06:00',to:'22:00',off:-1,theme:'system'},demo:true,sel:'subhan',lastFire:''};
+  var r=7;function rnd(){r=(r*9301+49297)%233280;return r/233280}
+  for(var i=1;i<=24;i++){
+    var k=dkey(addDays(today,-i)),mood=0.35+rnd()*0.85;S.logs[k]={};S.prayers[k]={};
+    S.dhikrs.filter(function(x){return x.goal}).forEach(function(x){if(rnd()<0.85)S.logs[k][x.id]=Math.round(x.target*mood*(0.7+rnd()*0.5))});
+    for(var p=0;p<5;p++)if(rnd()<0.8)S.prayers[k][p]=1;
+  }
+  S.logs[dkey(today)]={subhan:12,alham:5};
+  S.tasks=[
+    {id:'t1',title:'কুরআন তিলাওয়াত',cat:'islamic',time:'05:30',daily:true,sample:true},
+    {id:'t2',title:'৮ গ্লাস পানি পান',cat:'daily',time:'',daily:true,sample:true},
+    {id:'t3',title:'ব্যায়াম ২০ মিনিট',cat:'daily',time:'07:00',daily:true,sample:true},
+    {id:'t4',title:'বিদ্যুৎ বিল দেওয়া',cat:'important',time:'17:00',daily:false,date:dkey(addDays(today,2)),sample:true}];
+  return S;
+}
+var S;
+try{var raw=readRaw();S=raw?JSON.parse(raw):null}catch(e){S=null}
+if(!S||!S.dhikrs)S=seed();
+if(!S.ver2){S.dhikrs=hyd(S.dhikrs);S.ver2=1}
+S.set=Object.assign({remind:true,interval:20,from:'06:00',to:'22:00',off:-1,theme:'system',hourly:true,hFrom:'07:00',hTo:'22:00',pron:true},S.set||{});
+S.habits=S.habits||{};
+S.logs=S.logs||{};S.prayers=S.prayers||{};S.done=S.done||{};S.tasks=S.tasks||[];
+function save(){writeRaw(JSON.stringify(S));syncNativeSoon()}
+
+/* ---------- derived ---------- */
+function total(dk){var l=S.logs[dk];return l?Object.keys(l).reduce(function(a,k){return a+(l[k]||0)},0):0}
+function score(dk){var l=S.logs[dk];if(!l)return 0;var t=0,a=0;S.dhikrs.forEach(function(d){if(d.goal&&d.target>0){t+=d.target;a+=Math.min(l[d.id]||0,d.target)}});return t?a/t:0}
+function lvl(dk){var t=total(dk);if(!t)return 0;var s=score(dk);return s<.25?1:s<.5?2:s<.8?3:4}
+function streak(){var n=0,d=new Date();d.setHours(0,0,0,0);if(score(dkey(d))<.8)d=addDays(d,-1);while(score(dkey(d))>=.8&&n<3650){n++;d=addDays(d,-1)}return n}
+function cnt(id,dk){var l=S.logs[dk||dkey(new Date())];return l&&l[id]||0}
+function selD(){return S.dhikrs.filter(function(d){return d.id===S.sel})[0]||S.dhikrs[0]}
+function tk(t,dk){return (t.daily?dk:t.date)+'|'+t.id}
+function todayTasks(dk){
+  var l=S.tasks.filter(function(t){return t.daily||t.date===dk||(t.date&&t.date<dk&&!S.done[tk(t,dk)])});
+  return l.sort(function(a,b){var da=S.done[tk(a,dk)]?1:0,db=S.done[tk(b,dk)]?1:0;return da-db||mins(a.time||'23:59')-mins(b.time||'23:59')});
+}
+function hij(d){try{var dd=new Date(d.getTime()+S.set.off*864e5);
+  var p=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(dd);
+  function g(t){return parseInt(p.filter(function(x){return x.type===t})[0].value,10)}
+  var o={d:g('day'),m:g('month'),y:g('year')};return (isNaN(o.d)||isNaN(o.m)||isNaN(o.y))?null:o}catch(e){return null}}
+function hijriStr(d){var h=hij(d);return h?bn(h.d)+' '+HM[h.m-1]+' '+bn(h.y)+' হিজরি':''}
+
+/* ---------- reminder schedule ---------- */
+function slotsFor(date){
+  var iv=Math.max(5,+S.set.interval||20),a=mins(S.set.from),b=mins(S.set.to),out=[];
+  for(var m=a,k=0;m<=b;m+=iv,k++){var d=new Date(date);d.setHours(0,m,0,0);out.push({at:d,k:k})}
+  return out;
+}
+function dhikrFor(date,k){
+  var L=S.dhikrs.filter(function(x){return x.remind});if(!L.length)return null;
+  var doy=Math.floor((date-new Date(date.getFullYear(),0,0))/864e5);return L[(k+doy)%L.length];
+}
+function nextSlot(){
+  if(!S.set.remind)return null;var now=new Date();
+  for(var i=0;i<2;i++){var d=addDays(now,i),sl=slotsFor(d);
+    for(var j=0;j<sl.length;j++){if(sl[j].at>now){var dh=dhikrFor(d,sl[j].k);return dh?{at:sl[j].at,k:sl[j].k,dh:dh}:null}}}
+  return null;
+}
+function webNotify(t,b){
+  try{if('Notification' in window&&Notification.permission==='granted')new Notification(t,{body:b})}catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate([120,60,120])}catch(e){}
+}
+var firedT={};
+function tick(){
+  var now=new Date(),dk=dkey(now);
+  if(S.set.remind){
+    slotsFor(now).forEach(function(s){
+      var diff=now-s.at;
+      if(diff>=0&&diff<120000){var key=dk+'#'+s.k;
+        if(S.lastFire!==key){S.lastFire=key;writeRaw(JSON.stringify(S));var dh=dhikrFor(now,s.k);if(dh)showReminder(dh)}}
+    });
+  }
+  hourlySlots(now).forEach(function(d){
+    var diff=now-d;
+    if(diff>=0&&diff<120000){var key=dk+'h'+d.getHours();
+      if(S.lastH!==key){S.lastH=key;writeRaw(JSON.stringify(S));showHourly(hourlyAt(d))}}
+  });
+  var hm=pad(now.getHours())+':'+pad(now.getMinutes());
+  todayTasks(dk).forEach(function(t){
+    if(t.time===hm&&!S.done[tk(t,dk)]&&!firedT[dk+t.id]){firedT[dk+t.id]=1;webNotify('কাজের সময়',t.title);toast('কাজের সময়: '+t.title)}
+  });
+  var nw=document.getElementById('nextWhen');if(nw){var ns=nextSlot();nw.textContent=ns?until(ns.at):''}
+}
+var nativeTimer=null;
+function syncNativeSoon(){clearTimeout(nativeTimer);nativeTimer=setTimeout(syncNative,600)}
+async function syncNative(){
+  var LN=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.LocalNotifications;if(!LN)return;
+  try{
+    var p=await LN.checkPermissions();
+    if(p.display!=='granted'){p=await LN.requestPermissions();if(p.display!=='granted')return}
+    var pend=await LN.getPending();if(pend.notifications&&pend.notifications.length)await LN.cancel({notifications:pend.notifications});
+    var list=[],id=1,now=new Date();
+    if(S.set.remind)for(var i=0;i<3;i++){var d=addDays(now,i);slotsFor(d).forEach(function(s){
+      if(s.at>now){var dh=dhikrFor(d,s.k);if(dh)list.push({id:id++,title:dh.name,body:lines(dh).a[0]+' · '+(lines(dh).m[0]||''),schedule:{at:s.at,allowWhileIdle:true}})}})}
+    if(S.set.hourly)for(var i2=0;i2<3;i2++){var d2=addDays(now,i2);hourlySlots(d2).forEach(function(s,n){
+      if(s>now){var x=hText(hourlyAt(s));list.push({id:5000+i2*30+n,title:x.t,body:x.b,schedule:{at:s,allowWhileIdle:true}})}})}
+    S.tasks.forEach(function(t,n){
+      if(!t.time)return;var hm=t.time.split(':').map(Number);
+      if(t.daily)list.push({id:1000+n,title:'কাজের সময়',body:t.title,schedule:{on:{hour:hm[0],minute:hm[1]},allowWhileIdle:true,repeats:true}});
+      else if(t.date){var at=new Date(t.date+'T'+t.time+':00');if(at>now)list.push({id:1000+n,title:'কাজের সময়',body:t.title,schedule:{at:at,allowWhileIdle:true}})}
+    });
+    if(list.length)await LN.schedule({notifications:list});
+  }catch(e){}
+}
+
+/* ---------- hourly habit nudges ---------- */
+var HK=['water','move','sura'];
+var SURAS=['s108','s103','s110','ikhlas','s113','s114','s105','s106','s109','s097'];
+function hourlySlots(date){
+  if(!S.set.hourly)return [];
+  var a=Math.ceil(mins(S.set.hFrom)/60),b=Math.floor(mins(S.set.hTo)/60),out=[];
+  for(var h=a;h<=b&&h<24;h++){var d=new Date(date);d.setHours(h,0,0,0);out.push(d)}
+  return out;
+}
+function hourlyAt(d){
+  var h=d.getHours(),doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5),kind=HK[h%3];
+  return kind==='sura'?{kind:kind,sid:SURAS[(doy+h)%SURAS.length]}:{kind:kind};
+}
+function hText(it){
+  if(it.kind==='water')return {t:'পানি পান করুন',b:'এক গ্লাস পানি খেয়ে নিন।',b2:'এক গ্লাস পানি খেয়ে নিন।'};
+  if(it.kind==='move')return {t:'একটু হাঁটুন',b:'উঠে একটু হাঁটুন, ঘাড় ও কাঁধ টান করুন।',b2:'উঠে একটু হাঁটুন, ঘাড় ও কাঁধ টান করুন।'};
+  var L=LIBMAP[it.sid];return {t:'এখন একটু সূরা পড়ুন',b:L.name+' · '+L.a[0],b2:L.name};
+}
+function nextHourly(){
+  if(!S.set.hourly)return null;var now=new Date();
+  for(var i=0;i<2;i++){var d=addDays(now,i),sl=hourlySlots(d);
+    for(var j=0;j<sl.length;j++)if(sl[j]>now)return {at:sl[j],it:hourlyAt(sl[j])}}
+  return null;
+}
+function showHourly(it){
+  var x=hText(it);webNotify(x.t,x.b);
+  var h='<div class="rem counter"><p class="eyebrow">ঘণ্টার অভ্যাস</p><h2 style="margin:0">'+esc(x.t)+'</h2>';
+  if(it.kind==='sura'){
+    var L=LIBMAP[it.sid],n=Math.min(3,L.a.length);
+    h+='<p class="mean">'+esc(L.name)+'</p>';
+    for(var i=0;i<n;i++)h+='<div class="ar" dir="rtl" lang="ar">'+esc(L.a[i])+'</div><p class="pr">'+esc(L.u[i])+'</p><p class="mean">'+esc(L.m[i])+'</p>';
+    if(L.a.length>n)h+='<p class="small muted">পুরো সূরা জিকির ট্যাবে আছে।</p>';
+    h+='</div><div class="btns"><button class="btn primary" data-act="remInc" data-id="'+it.sid+'" data-n="1">পড়লাম (+১)</button><button class="btn" data-act="close">পরে</button></div>';
+  }else{
+    h+='<p class="mean">'+esc(x.b2)+'</p></div><div class="btns"><button class="btn primary" data-act="habDone" data-k="'+(it.kind==='water'?'w':'m')+'">'+(it.kind==='water'?'পান করেছি':'করেছি')+'</button><button class="btn" data-act="close">পরে</button></div>';
+  }
+  openSheet(h);
+  if(tab==='home')render();
+}
+/* ---------- ui helpers ---------- */
+var tab='home',calY=new Date().getFullYear(),calM=new Date().getMonth(),range='d';
+function toast(m){var t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},2200)}
+function openSheet(h){$('#sheet').innerHTML='<div class="grab"></div>'+h;$('#ov').hidden=false}
+function closeSheet(){$('#ov').hidden=true;$('#sheet').innerHTML=''}
+function ask(msg,label,fn){
+  openSheet('<h2>'+esc(msg)+'</h2><div class="btns"><button class="btn" data-act="close">বাতিল</button><button class="btn primary" data-act="yes">'+esc(label)+'</button></div>');
+  ask.fn=fn;
+}
+function ring(p,size,sw){
+  var r=(size-sw)/2,c=2*Math.PI*r,h=size/2;
+  return '<svg viewBox="0 0 '+size+' '+size+'" class="ring" aria-hidden="true"><circle cx="'+h+'" cy="'+h+'" r="'+r+'" class="rt" stroke-width="'+sw+'"/><circle cx="'+h+'" cy="'+h+'" r="'+r+'" class="rf" stroke-width="'+sw+'" stroke-dasharray="'+c+'" stroke-dashoffset="'+(c*(1-Math.min(1,p)))+'" transform="rotate(-90 '+h+' '+h+')"/></svg>';
+}
+function demoBanner(){
+  return S.demo?'<div class="banner"><span>এখানকার হিসাব নমুনা তথ্য। নিজের তথ্য শুরু করতে মুছে দিন।</span><button data-act="clearDemo">মুছুন</button></div>':'';
+}
+
+/* ---------- views ---------- */
+function vHome(){
+  var now=new Date(),dk=dkey(now),sc=score(dk),ns=nextSlot(),pr=S.prayers[dk]||{},tasks=todayTasks(dk);
+  var h='<section class="hero"><p class="eyebrow">'+DAYS[now.getDay()]+(now.getDay()===5?' · জুমার দিন':'')+'</p><h1>'+fmtDate(now)+'</h1><p class="sub">'+hijriStr(now)+'</p></section>'+demoBanner();
+  h+='<div class="card"><div class="today"><div class="ringbox">'+ring(sc,96,10)+'<b>'+pct(sc)+'</b></div><div><h2 style="margin:0">আজকের জিকির</h2><p class="muted">মোট '+bn(total(dk))+' বার</p></div></div>';
+  h+='<div class="next">'+(ns?'পরের রিমাইন্ডার <b>'+fmtT(pad(ns.at.getHours())+':'+pad(ns.at.getMinutes()))+'</b> (<span id="nextWhen">'+until(ns.at)+'</span>)<br><span class="muted small">'+esc(ns.dh.name)+'</span>':'রিমাইন্ডার বন্ধ আছে বা কোনো জিকির বাছা নেই। সেটিংস থেকে চালু করুন।')+'</div>';
+  h+='<div class="btns"><button class="btn primary" data-act="tab" data-t="dhikr">জিকির করি</button></div></div>';
+  var hb=S.habits[dk]||{w:0,m:0},nh=nextHourly();
+  h+='<div class="card"><h2>আজকের অভ্যাস</h2><div class="tiles">'+
+    '<div class="tile"><b>'+bn(hb.w||0)+' / ৮</b><span>গ্লাস পানি</span><div class="row" style="margin-top:8px"><button class="round" data-act="hab" data-k="w" data-n="-1" aria-label="কমাও">−</button><button class="round" data-act="hab" data-k="w" data-n="1" aria-label="বাড়াও">+</button></div></div>'+
+    '<div class="tile"><b>'+bn(hb.m||0)+' বার</b><span>হাঁটাহাঁটি</span><div class="row" style="margin-top:8px"><button class="round" data-act="hab" data-k="m" data-n="-1" aria-label="কমাও">−</button><button class="round" data-act="hab" data-k="m" data-n="1" aria-label="বাড়াও">+</button></div></div></div>'+
+    '<p class="small muted" style="margin-top:10px">'+(nh?'পরের নোটিফিকেশন '+fmtT(pad(nh.at.getHours())+':00')+': '+esc(hText(nh.it).t):'ঘণ্টার নোটিফিকেশন বন্ধ আছে। সেটিংস থেকে চালু করুন।')+'</p></div>';
+  h+='<div class="card"><h2>আজকের নামাজ</h2><div class="pray">'+PR.map(function(n,i){return '<button class="'+(pr[i]?'on':'')+'" data-act="prayer" data-i="'+i+'" aria-pressed="'+(pr[i]?'true':'false')+'">'+n+'<span>'+(pr[i]?'আদায়':'বাকি')+'</span></button>'}).join('')+'</div></div>';
+  h+='<div class="card"><div class="between"><h2 style="margin:0">আজকের কাজ</h2><button class="chip" data-act="addTask">+ নতুন</button></div>';
+  h+=tasks.length?'<ul class="tasks" style="margin-top:6px">'+tasks.map(function(t){
+    var dn=!!S.done[tk(t,dk)],late=!t.daily&&t.date<dk;
+    return '<li class="task '+(dn?'done':'')+'"><button class="ck" data-act="task" data-id="'+t.id+'" aria-pressed="'+dn+'" aria-label="সম্পন্ন">'+CHECK+'</button>'+
+      '<button class="tx" data-act="editTask" data-id="'+t.id+'"><span class="tt">'+esc(t.title)+'</span><span class="meta">'+CATS[t.cat]+(t.time?' · '+fmtT(t.time):'')+(t.daily?' · প্রতিদিন':'')+'</span></button>'+
+      (late?'<span class="tag late">মেয়াদ শেষ</span>':t.cat==='important'?'<span class="tag">জরুরি</span>':'')+'</li>'}).join('')+'</ul>'
+    :'<p class="muted" style="margin-top:8px">আজকের জন্য কোনো কাজ নেই। উপরের “+ নতুন” চেপে যোগ করুন।</p>';
+  return h+'</div>';
+}
+var FILT='all',Q='';
+var CATN={dhikr:'জিকির',dua:'দুআ',sura:'সূরা',mine:'আমার'};
+function listHTML(){
+  var dk=dkey(new Date()),q=Q.trim().toLowerCase();
+  var items=S.dhikrs.filter(function(d){
+    if(FILT!=='all'&&d.cat!==FILT)return false;
+    if(!q)return true;
+    var L=lines(d),hay=(d.name+' '+L.u.join(' ')+' '+L.m.join(' ')).toLowerCase();return hay.indexOf(q)>=0});
+  if(!items.length)return '<p class="muted" style="padding:10px 0">কিছু পাওয়া যায়নি।</p>';
+  return items.map(function(x){var v=cnt(x.id,dk),p=x.target?Math.min(1,v/x.target):0;
+    return '<div class="li"><button class="nm" data-act="sel" data-id="'+esc(x.id)+'">'+esc(x.name)+'<span class="meta">'+CATN[x.cat]+' · আজ '+bn(v)+' / '+bn(x.target)+'</span></button>'+
+      '<button class="sw" data-act="remind" data-id="'+esc(x.id)+'" aria-pressed="'+!!x.remind+'" aria-label="রিমাইন্ডারে রাখো"></button><div class="bar-t"><i style="width:'+Math.round(p*100)+'%"></i></div></div>'}).join('');
+}
+function vDhikr(){
+  var d=selD(),dk=dkey(new Date()),h='';
+  if(d){
+    var L=lines(d),c=cnt(d.id,dk),pron=S.set.pron!==false;
+    h+='<div class="card read"><div class="between"><h2 style="margin:0">'+esc(d.name)+'</h2><button class="chip '+(pron?'on':'')+'" data-act="pron" aria-pressed="'+pron+'">উচ্চারণ</button></div>';
+    L.a.forEach(function(a,i){h+='<div class="ln"><div class="ar" dir="rtl" lang="ar">'+esc(a)+'</div>'+(pron&&L.u[i]?'<p class="pr">'+esc(L.u[i])+'</p>':'')+(L.m[i]?'<p class="mean">'+esc(L.m[i])+'</p>':'')+'</div>'});
+    if(L.s)h+='<p class="small muted src">সূত্র: '+esc(L.s)+'</p>';
+    h+='<div class="btns"><button class="btn" data-act="editDhikr" data-id="'+esc(d.id)+'">লক্ষ্য বদলান</button></div></div>';
+    h+='<div class="card counter"><button class="tap" data-act="inc" data-n="1" aria-label="একবার গণনা করো">'+ring(d.target?c/d.target:0,196,10)+'<span class="in"><span class="num">'+bn(c)+'</span><span class="of">লক্ষ্য '+bn(d.target)+'</span></span></button>'+
+      '<div class="row"><button class="btn" data-act="inc" data-n="-1">−১</button><button class="btn" data-act="inc" data-n="10">+১০</button></div></div>';
+  }
+  h+='<div class="card"><div class="between"><h2 style="margin:0">জিকির, দুআ ও সূরা</h2><button class="chip" data-act="addDhikr">+ নতুন</button></div>';
+  h+='<div class="scroller" style="margin-top:8px">'+[['all','সব'],['dhikr','জিকির'],['dua','দুআ'],['sura','সূরা'],['mine','আমার']].map(function(f){return '<button class="chip '+(FILT===f[0]?'on':'')+'" data-act="filt" data-f="'+f[0]+'">'+f[1]+'</button>'}).join('')+'</div>';
+  h+='<div class="field"><label for="q" class="lbl">খুঁজুন (নাম, উচ্চারণ বা অর্থ)</label><input id="q" type="text" value="'+esc(Q)+'" autocomplete="off"></div>';
+  h+='<div class="list" id="libList">'+listHTML()+'</div><p class="note">সুইচ চালু থাকা জিকির ও দুআ নির্দিষ্ট সময় পরপর ঘুরে ঘুরে রিমাইন্ডারে আসবে।</p></div>';
+  return h;
+}
+function monthHijri(y,m){
+  var a=hij(new Date(y,m,1)),b=hij(new Date(y,m+1,0));if(!a||!b)return '';
+  var s=HM[a.m-1]+(b.m!==a.m?' – '+HM[b.m-1]:'')+' '+bn(b.y);return s;
+}
+function vCal(){
+  var today=dkey(new Date()),first=new Date(calY,calM,1),n=new Date(calY,calM+1,0).getDate(),lead=(first.getDay()+1)%7;
+  var h='<div class="card"><div class="calhead"><button class="round" data-act="calPrev" aria-label="আগের মাস">‹</button><h2>'+MONTHS[calM]+' '+bn(calY)+'<span class="sub">'+monthHijri(calY,calM)+'</span></h2><button class="round" data-act="calNext" aria-label="পরের মাস">›</button></div>';
+  h+='<div class="grid7">'+['শনি','রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র'].map(function(x){return '<div class="dow">'+x+'</div>'}).join('');
+  for(var i=0;i<lead;i++)h+='<div class="cell void"></div>';
+  for(var d=1;d<=n;d++){
+    var dt=new Date(calY,calM,d),k=dkey(dt),hh=hij(dt),fut=k>today,l=fut?0:lvl(k);
+    var dot=S.tasks.some(function(t){return !t.daily&&t.date===k&&!S.done[tk(t,k)]});
+    h+='<button class="cell l'+l+(dt.getDay()===5?' fri':'')+(k===today?' today':'')+(fut?' future':'')+'" data-act="day" data-k="'+k+'"><b>'+bn(d)+'</b><small>'+(hh?bn(hh.d):'')+'</small>'+(dot?'<span class="dot"></span>':'')+'</button>';
+  }
+  h+='</div><div class="legend"><span>কম</span><i style="background:var(--surface-2)"></i><i style="background:color-mix(in srgb,var(--green) 22%,var(--surface))"></i><i style="background:color-mix(in srgb,var(--green) 42%,var(--surface))"></i><i style="background:color-mix(in srgb,var(--green) 68%,var(--surface))"></i><i style="background:var(--green)"></i><span>বেশি</span></div>';
+  h+='<p class="note">ছোট সংখ্যা হিজরি তারিখ। সোনালি দাগ বাকি থাকা কাজ। শুক্রবারের তারিখ সোনালি রঙে।</p></div>';
+  return h;
+}
+function buckets(r){
+  var today=new Date();today.setHours(0,0,0,0);var out=[],i,j;
+  if(r==='d'){for(i=6;i>=0;i--){var d=addDays(today,-i);out.push({label:DS[d.getDay()],days:[dkey(d)]})}}
+  else if(r==='w'){var ws=addDays(today,-((today.getDay()+1)%7));
+    for(i=7;i>=0;i--){var s=addDays(ws,-7*i),days=[];for(j=0;j<7;j++){var x=addDays(s,j);if(x<=today)days.push(dkey(x))}out.push({label:bn(s.getDate())+'/'+bn(s.getMonth()+1),days:days})}}
+  else{for(i=5;i>=0;i--){var f=new Date(today.getFullYear(),today.getMonth()-i,1),nn=new Date(f.getFullYear(),f.getMonth()+1,0).getDate(),dd=[];
+    for(j=1;j<=nn;j++){var y=new Date(f.getFullYear(),f.getMonth(),j);if(y<=today)dd.push(dkey(y))}out.push({label:MS[f.getMonth()],days:dd})}}
+  return out;
+}
+function nice(v){if(v<=5)return 5;var p=Math.pow(10,Math.floor(Math.log10(v))),f=v/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p}
+function chart(b,vals){
+  var W=340,H=200,L=36,R=6,T=18,B=26,max=nice(Math.max.apply(null,vals.concat([1]))),cw=(W-L-R)/b.length,bw=Math.min(30,cw*.6);
+  var s='<svg viewBox="0 0 '+W+' '+H+'" class="chart" role="img" aria-label="জিকির সংখ্যার বার চার্ট">';
+  [0,.5,1].forEach(function(f){var y=T+(H-T-B)*(1-f);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" class="grid"/><text x="'+(L-6)+'" y="'+(y+3.5)+'" text-anchor="end" class="axis">'+bn(Math.round(max*f))+'</text>'});
+  b.forEach(function(x,i){var h=(H-T-B)*vals[i]/max,cx=L+cw*i+cw/2,y=H-B-h;
+    s+='<rect x="'+(cx-bw/2)+'" y="'+y+'" width="'+bw+'" height="'+Math.max(h,0)+'" rx="4" class="bar'+(i===b.length-1?' cur':'')+'"/>';
+    if(vals[i]>0)s+='<text x="'+cx+'" y="'+(y-4)+'" text-anchor="middle" class="val">'+bn(vals[i])+'</text>';
+    s+='<text x="'+cx+'" y="'+(H-9)+'" text-anchor="middle" class="axis">'+x.label+'</text>'});
+  return s+'</svg>';
+}
+function vStats(){
+  var b=buckets(range),vals=b.map(function(x){return x.days.reduce(function(a,k){return a+total(k)},0)});
+  var sum=vals.reduce(function(a,c){return a+c},0),dayN=b.reduce(function(a,x){return a+x.days.length},0),best=Math.max.apply(null,vals.concat([0]));
+  var per=S.dhikrs.map(function(d){var t=0;b.forEach(function(x){x.days.forEach(function(k){t+=cnt(d.id,k)})});return {d:d,t:t}}).filter(function(x){return x.t>0||x.d.goal}).sort(function(a,c){return c.t-a.t});
+  var pm=Math.max.apply(null,per.map(function(x){return x.t}).concat([1]));
+  var h='<section class="hero"><p class="eyebrow">হিসাব</p><h1>কতবার পড়লাম</h1></section>'+demoBanner();
+  h+='<div class="seg" role="tablist">'+[['d','৭ দিন'],['w','৮ সপ্তাহ'],['m','৬ মাস']].map(function(x){return '<button class="'+(range===x[0]?'on':'')+'" data-act="range" data-r="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
+  h+='<div class="card">'+chart(b,vals)+'</div>';
+  h+='<div class="tiles"><div class="tile"><b>'+bn(sum)+'</b><span>মোট জিকির</span></div><div class="tile"><b>'+bn(Math.round(sum/Math.max(1,dayN)))+'</b><span>দিনে গড়</span></div><div class="tile"><b>'+bn(best)+'</b><span>সেরা '+(range==='d'?'দিন':range==='w'?'সপ্তাহ':'মাস')+'</span></div><div class="tile"><b>'+bn(streak())+' দিন</b><span>টানা স্ট্রিক</span></div></div>';
+  h+='<p class="small muted" style="margin-top:-4px">দিনের লক্ষ্যের ৮০% বা বেশি হলে স্ট্রিক গোনা হয়।</p>';
+  h+='<div class="card"><h2>জিকির অনুযায়ী</h2><div class="list">'+per.map(function(x){return '<div class="li"><span class="nm">'+esc(x.d.name)+'</span><b>'+bn(x.t)+'</b><div class="bar-t"><i style="width:'+Math.round(x.t/pm*100)+'%"></i></div></div>'}).join('')+'</div></div>';
+  return h;
+}
+function vSet(){
+  var st=S.set,iv=[10,20,30,60],names=S.dhikrs.filter(function(x){return x.remind}).map(function(x){return esc(x.name)}).join('، ');
+  var h='<section class="hero"><p class="eyebrow">সেটিংস</p><h1>জিকির ডায়েরি</h1></section>';
+  h+='<div class="card"><h2>রিমাইন্ডার</h2><div class="setrow"><span>রিমাইন্ডার চালু</span><button class="sw" data-act="remOn" aria-pressed="'+!!st.remind+'" aria-label="রিমাইন্ডার চালু"></button></div>';
+  h+='<div class="field" style="margin-top:8px"><span class="lbl">কত মিনিট পরপর</span><div class="scroller">'+iv.map(function(m){return '<button class="chip '+(+st.interval===m?'on':'')+'" data-act="interval" data-m="'+m+'">'+bn(m)+' মিনিট</button>'}).join('')+'</div>';
+  h+='<label class="lbl" for="ivc">নিজের সংখ্যা (মিনিট, কমপক্ষে ৫)</label><input id="ivc" type="number" min="5" max="720" inputmode="numeric" value="'+esc(st.interval)+'" data-set="interval"></div>';
+  h+='<div class="two"><div class="field"><label for="sfrom">শুরু</label><input id="sfrom" type="time" value="'+esc(st.from)+'" data-set="from"></div><div class="field"><label for="sto">শেষ</label><input id="sto" type="time" value="'+esc(st.to)+'" data-set="to"></div></div>';
+  h+='<p class="small muted">ঘুমের সময় রিমাইন্ডার আসবে না। ঘুরে ঘুরে আসবে: '+(names||'কোনো জিকির বাছা নেই')+'</p>';
+  h+='<div class="btns"><button class="btn" data-act="testRem">পরীক্ষা করুন</button><button class="btn" data-act="perm">নোটিফিকেশন অনুমতি</button></div>';
+  h+='<p class="note">অ্যাপ বন্ধ থাকলেও নোটিফিকেশন আসতে APK হিসেবে ইনস্টল করা লাগবে। ফোনের সেটিংসে এই অ্যাপের Battery optimization বন্ধ রাখুন।</p></div>';
+  h+='<div class="card"><h2>ঘণ্টায় ঘণ্টায় অভ্যাস</h2><div class="setrow"><span>প্রতি ঘণ্টায় নোটিফিকেশন<br><span class="small muted">পানি পান, একটু হাঁটা ও ছোট সূরা পড়া ঘুরে ঘুরে আসবে</span></span><button class="sw" data-act="hrOn" aria-pressed="'+!!st.hourly+'" aria-label="ঘণ্টার নোটিফিকেশন"></button></div>'+
+    '<div class="two" style="margin-top:8px"><div class="field"><label for="hf">শুরু</label><input id="hf" type="time" value="'+esc(st.hFrom)+'" data-set="hFrom"></div><div class="field"><label for="ht">শেষ</label><input id="ht" type="time" value="'+esc(st.hTo)+'" data-set="hTo"></div></div><button class="btn block" data-act="testH">পরীক্ষা করুন</button></div>';
+  h+='<div class="card"><h2>চেহারা</h2><div class="seg">'+[['system','ফোনের মতো'],['light','হালকা'],['dark','গাঢ়']].map(function(x){return '<button class="'+(st.theme===x[0]?'on':'')+'" data-act="theme" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
+  h+='<div class="setrow" style="margin-top:12px"><span>হিজরি তারিখ সমন্বয়<br><span class="small muted">চাঁদ দেখা অনুযায়ী মেলান</span></span><div class="stepper"><button class="round" data-act="off" data-d="-1" aria-label="কমাও">−</button><b>'+(st.off>0?'+':'')+bn(st.off)+'</b><button class="round" data-act="off" data-d="1" aria-label="বাড়াও">+</button></div></div></div>';
+  h+='<div class="card"><h2>ব্যাকআপ</h2><p class="small muted" style="margin-bottom:8px">সব তথ্য শুধু এই ফোনেই থাকে। ফোন বদলালে আগে ব্যাকআপ কপি করে রাখুন।</p><div class="btns" style="margin-top:0"><button class="btn" data-act="copy">ব্যাকআপ কপি</button></div>';
+  h+='<div class="field" style="margin-top:12px"><label for="rs">ব্যাকআপ পেস্ট করে ফেরত আনুন</label><textarea id="rs" placeholder="এখানে পেস্ট করুন"></textarea></div><button class="btn block" data-act="restore">ফেরত আনুন</button></div>';
+  return h;
+}
+var V={home:vHome,dhikr:vDhikr,cal:vCal,stats:vStats,set:vSet};
+function render(){
+  var sc=[].slice.call(document.querySelectorAll('.scroller')).map(function(e){return e.scrollLeft});
+  $('#view').innerHTML=V[tab]();
+  [].slice.call(document.querySelectorAll('.scroller')).forEach(function(e,i){e.scrollLeft=sc[i]||0});
+  $('#tabs').innerHTML=TABS.map(function(t){return '<button class="tab" data-act="tab" data-t="'+t[0]+'"'+(t[0]===tab?' aria-current="page"':'')+'><svg viewBox="0 0 24 24" aria-hidden="true">'+ICON[t[0]]+'</svg>'+t[1]+'</button>'}).join('');
+}
+
+/* ---------- sheets ---------- */
+function showReminder(dh,test){
+  var L=lines(dh),n=Math.min(3,L.a.length);
+  webNotify(dh.name,(L.a[0]||'')+' · '+(L.m[0]||''));
+  var body='';
+  for(var i=0;i<n;i++)body+='<div class="ar" dir="rtl" lang="ar">'+esc(L.a[i])+'</div>'+(L.u[i]?'<p class="pr">'+esc(L.u[i])+'</p>':'')+(L.m[i]?'<p class="mean">'+esc(L.m[i])+'</p>':'');
+  if(L.a.length>n)body+='<p class="small muted">পুরোটা জিকির ট্যাবে আছে।</p>';
+  openSheet('<div class="rem counter"><p class="eyebrow">'+(test?'পরীক্ষা':'এখন পড়ার সময়')+'</p>'+body+'<h2 style="margin:0">'+esc(dh.name)+'</h2><p class="small muted">আজ '+bn(cnt(dh.id))+' / '+bn(dh.target)+'</p></div>'+
+    '<div class="btns"><button class="btn primary" data-act="remInc" data-id="'+esc(dh.id)+'" data-n="1">+১ পড়লাম</button><button class="btn" data-act="close">পরে</button></div>');
+  if(tab==='home'||tab==='dhikr')render();
+}
+function daySheet(k){
+  var p=k.split('-'),dt=new Date(+p[0],+p[1]-1,+p[2]),pr=S.prayers[k]||{},np=Object.keys(pr).filter(function(i){return pr[i]}).length;
+  var ts=S.tasks.filter(function(t){return t.daily||t.date===k});
+  var h='<h2>'+DAYS[dt.getDay()]+', '+fmtDate(dt)+'</h2><p class="muted" style="margin:-8px 0 12px">'+hijriStr(dt)+'</p>';
+  h+='<div class="tiles"><div class="tile"><b>'+bn(total(k))+'</b><span>মোট জিকির</span></div><div class="tile"><b>'+bn(np)+'/৫</b><span>নামাজ</span></div></div>';
+  var rows=S.dhikrs.map(function(d){var v=cnt(d.id,k);return v?'<div class="li"><span class="nm">'+esc(d.name)+'</span><span>'+bn(v)+' / '+bn(d.target)+'</span><div class="bar-t"><i style="width:'+Math.round(Math.min(1,v/Math.max(1,d.target))*100)+'%"></i></div></div>':''}).join('');
+  h+='<div class="list" style="margin-top:12px">'+(rows||'<p class="muted">এই দিনে কোনো জিকির লেখা নেই।</p>')+'</div>';
+  if(ts.length)h+='<h2 style="margin-top:14px">কাজ</h2><ul class="tasks">'+ts.map(function(t){var dn=!!S.done[tk(t,k)];return '<li class="task '+(dn?'done':'')+'"><span class="tx"><span class="tt">'+esc(t.title)+'</span><span class="meta">'+(dn?'সম্পন্ন':'বাকি')+'</span></span></li>'}).join('')+'</ul>';
+  openSheet(h+'<div class="btns"><button class="btn" data-act="close">বন্ধ করুন</button></div>');
+}
+function taskSheet(id){
+  var t=S.tasks.filter(function(x){return x.id===id})[0]||{cat:'daily',daily:true,time:'',date:dkey(new Date()),title:''};
+  openSheet('<h2>'+(id?'কাজ বদলান':'নতুন কাজ')+'</h2><form data-form="task" data-id="'+esc(id||'')+'">'+
+    '<div class="field"><label for="tT">কাজের নাম</label><input id="tT" type="text" required maxlength="80" value="'+esc(t.title)+'"></div>'+
+    '<div class="two"><div class="field"><label for="tC">ধরন</label><select id="tC">'+Object.keys(CATS).map(function(c){return '<option value="'+c+'"'+(c===t.cat?' selected':'')+'>'+CATS[c]+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="tH">সময় (ঐচ্ছিক)</label><input id="tH" type="time" value="'+esc(t.time||'')+'"></div></div>'+
+    '<label class="check"><input id="tD" type="checkbox" '+(t.daily?'checked':'')+'> প্রতিদিন করব</label>'+
+    '<div class="field" id="tDW" '+(t.daily?'hidden':'')+'><label for="tDate">তারিখ</label><input id="tDate" type="date" value="'+esc(t.date||dkey(new Date()))+'"></div>'+
+    '<div class="btns"><button type="button" class="btn" data-act="close">বাতিল</button><button class="btn primary" type="submit">সংরক্ষণ</button></div>'+
+    (id?'<div class="btns"><button type="button" class="btn danger block" data-act="delTask" data-id="'+esc(id)+'">কাজটি মুছুন</button></div>':'')+'</form>');
+}
+function dhikrSheet(id){
+  var d=S.dhikrs.filter(function(x){return x.id===id})[0]||{name:'',arabic:'',meaning:'',target:33,remind:true,goal:true};
+  var lib=!!d.lib;
+  openSheet('<h2>'+(id?'জিকির বদলান':'নতুন জিকির')+'</h2><form data-form="dhikr" data-id="'+esc(id||'')+'" data-lib="'+(lib?1:0)+'">'+
+    (lib?'<p class="mean" style="margin:-4px 0 12px">'+esc(d.name)+'</p>':
+    '<div class="field"><label for="dN">নাম</label><input id="dN" type="text" required maxlength="40" value="'+esc(d.name)+'"></div>'+
+    '<div class="field"><label for="dA">আরবি লেখা (ঐচ্ছিক)</label><input id="dA" type="text" dir="rtl" lang="ar" value="'+esc(d.arabic)+'"></div>'+
+    '<div class="field"><label for="dM">অর্থ (ঐচ্ছিক)</label><input id="dM" type="text" maxlength="120" value="'+esc(d.meaning)+'"></div>')+
+    '<div class="field"><label for="dT">প্রতিদিনের লক্ষ্য</label><input id="dT" type="number" min="1" max="100000" inputmode="numeric" required value="'+esc(d.target)+'"></div>'+
+    '<label class="check"><input id="dR" type="checkbox" '+(d.remind?'checked':'')+'> রিমাইন্ডারে রাখব</label>'+
+    '<label class="check"><input id="dG" type="checkbox" '+(d.goal?'checked':'')+'> দিনের মূল লক্ষ্যে গণ্য হবে</label>'+
+    '<div class="btns"><button type="button" class="btn" data-act="close">বাতিল</button><button class="btn primary" type="submit">সংরক্ষণ</button></div>'+
+    (id&&!lib?'<div class="btns"><button type="button" class="btn danger block" data-act="delDhikr" data-id="'+esc(id)+'">জিকিরটি মুছুন</button></div>':'')+'</form>');
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',function(e){
+  if(e.target.id==='ov'){closeSheet();return}
+  var el=e.target.closest('[data-act]');if(!el)return;
+  var a=el.dataset.act,dk=dkey(new Date());
+  switch(a){
+    case 'tab':tab=el.dataset.t;render();window.scrollTo(0,0);break;
+    case 'sel':S.sel=el.dataset.id;save();render();window.scrollTo(0,0);break;
+    case 'inc':var d=selD(),l=S.logs[dk]||(S.logs[dk]={});l[d.id]=Math.max(0,(l[d.id]||0)+(+el.dataset.n));save();try{if(navigator.vibrate&&+el.dataset.n>0)navigator.vibrate(8)}catch(x){}render();break;
+    case 'remInc':var l2=S.logs[dk]||(S.logs[dk]={}),id=el.dataset.id;l2[id]=(l2[id]||0)+(+el.dataset.n);save();closeSheet();toast('আল্লাহ কবুল করুন');render();break;
+    case 'remind':S.dhikrs.forEach(function(x){if(x.id===el.dataset.id)x.remind=!x.remind});save();render();break;
+    case 'remOn':S.set.remind=!S.set.remind;save();render();break;
+    case 'prayer':var i=el.dataset.i,pp=S.prayers[dk]||(S.prayers[dk]={});pp[i]=pp[i]?0:1;save();render();break;
+    case 'task':var t=S.tasks.filter(function(x){return x.id===el.dataset.id})[0];if(t){var key=tk(t,dk);if(S.done[key])delete S.done[key];else S.done[key]=1;save();render()}break;
+    case 'addTask':taskSheet();break;
+    case 'editTask':taskSheet(el.dataset.id);break;
+    case 'addDhikr':dhikrSheet();break;
+    case 'editDhikr':dhikrSheet(el.dataset.id);break;
+    case 'delTask':ask('কাজটি মুছে ফেলবেন?','মুছুন',function(){S.tasks=S.tasks.filter(function(x){return x.id!==el.dataset.id});save();closeSheet();render()});break;
+    case 'delDhikr':ask('জিকিরটি মুছে ফেলবেন? আগের হিসাব থেকে যাবে।','মুছুন',function(){S.dhikrs=S.dhikrs.filter(function(x){return x.id!==el.dataset.id});if(S.sel===el.dataset.id)S.sel=S.dhikrs[0]?S.dhikrs[0].id:'';save();closeSheet();render()});break;
+    case 'yes':var f=ask.fn;ask.fn=null;if(f)f();break;
+    case 'filt':FILT=el.dataset.f;render();break;
+    case 'pron':S.set.pron=S.set.pron===false?true:false;save();render();break;
+    case 'hab':var hp=S.habits[dk]||(S.habits[dk]={w:0,m:0});hp[el.dataset.k]=Math.max(0,(hp[el.dataset.k]||0)+(+el.dataset.n));save();render();break;
+    case 'habDone':var hq=S.habits[dk]||(S.habits[dk]={w:0,m:0});hq[el.dataset.k]=(hq[el.dataset.k]||0)+1;save();closeSheet();toast('ধন্যবাদ, লিখে রাখলাম');render();break;
+    case 'hrOn':S.set.hourly=!S.set.hourly;save();render();break;
+    case 'testH':showHourly(hourlyAt(new Date()));break;
+    case 'close':closeSheet();break;
+    case 'calPrev':calM--;if(calM<0){calM=11;calY--}render();break;
+    case 'calNext':calM++;if(calM>11){calM=0;calY++}render();break;
+    case 'day':daySheet(el.dataset.k);break;
+    case 'range':range=el.dataset.r;render();break;
+    case 'interval':S.set.interval=+el.dataset.m;save();render();break;
+    case 'theme':S.set.theme=el.dataset.v;applyTheme();save();render();break;
+    case 'off':S.set.off=Math.max(-3,Math.min(3,S.set.off+(+el.dataset.d)));save();render();break;
+    case 'testRem':var dh=dhikrFor(new Date(),0)||S.dhikrs[0];if(dh)showReminder(dh,true);break;
+    case 'perm':
+      try{Notification.requestPermission().then(function(r){toast(r==='granted'?'নোটিফিকেশন চালু হয়েছে':'অনুমতি দেওয়া হয়নি')})}catch(x){toast('এখানে নোটিফিকেশন সমর্থিত নয়। APK-তে কাজ করবে।')}
+      syncNative();break;
+    case 'copy':
+      var txt=JSON.stringify(S);
+      try{navigator.clipboard.writeText(txt).then(function(){toast('ব্যাকআপ কপি হয়েছে')},function(){toast('কপি হয়নি')})}catch(x){toast('কপি হয়নি')}
+      break;
+    case 'restore':
+      try{var o=JSON.parse($('#rs').value);if(!o||!o.dhikrs)throw 0;S=o;save();applyTheme();render();toast('ব্যাকআপ ফেরত এসেছে')}catch(x){toast('ব্যাকআপটি ঠিক নয়')}
+      break;
+    case 'clearDemo':ask('নমুনা তথ্য মুছে নিজের তথ্য শুরু করবেন?','মুছুন',function(){
+      var tdy=dkey(new Date());S.logs={};S.prayers={};S.done={};S.tasks=S.tasks.filter(function(x){return !x.sample});S.demo=false;S.logs[tdy]={};save();closeSheet();render()});break;
+  }
+});
+document.addEventListener('change',function(e){
+  var el=e.target;
+  if(el.id==='tD'){$('#tDW').hidden=el.checked;return}
+  if(el.dataset&&el.dataset.set){var k=el.dataset.set,v=el.value;
+    if(k==='interval'){v=Math.max(5,Math.min(720,parseInt(v,10)||20))}
+    if((k==='from'||k==='to'||k==='hFrom'||k==='hTo')&&!v)return;
+    S.set[k]=v;save();render()}
+});
+document.addEventListener('input',function(e){
+  if(e.target&&e.target.id==='q'){Q=e.target.value;var l=$('#libList');if(l)l.innerHTML=listHTML()}
+});
+document.addEventListener('submit',function(e){
+  e.preventDefault();var f=e.target,id=f.dataset.id;
+  if(f.dataset.form==='task'){
+    var title=$('#tT').value.trim();if(!title)return;
+    var o={id:id||uid(),title:title,cat:$('#tC').value,time:$('#tH').value,daily:$('#tD').checked,date:$('#tDate').value||dkey(new Date())};
+    if(o.daily)delete o.date;
+    if(id){S.tasks=S.tasks.map(function(x){return x.id===id?Object.assign({},x,o,{sample:false}):x})}else S.tasks.push(o);
+    save();closeSheet();render();toast('কাজ সংরক্ষিত');
+  }
+  if(f.dataset.form==='dhikr'){
+    var tg=Math.max(1,parseInt($('#dT').value,10)||33),rm=$('#dR').checked,gl=$('#dG').checked;
+    if(f.dataset.lib==='1'){S.dhikrs.forEach(function(x){if(x.id===id){x.target=tg;x.remind=rm;x.goal=gl}})}
+    else{
+      var nm=$('#dN').value.trim();if(!nm)return;
+      var dd={name:nm,arabic:$('#dA').value.trim(),meaning:$('#dM').value.trim(),target:tg,remind:rm,goal:gl,cat:'mine'};
+      if(id){S.dhikrs=S.dhikrs.map(function(x){return x.id===id?Object.assign({},x,dd):x})}
+      else{dd.id=uid();S.dhikrs.push(dd);S.sel=dd.id}
+    }
+    save();closeSheet();render();toast('জিকির সংরক্ষিত');
+  }
+});
+function applyTheme(){var t=S.set.theme,r=document.documentElement;if(t==='light'||t==='dark')r.setAttribute('data-theme',t);else r.removeAttribute('data-theme')}
+document.addEventListener('visibilitychange',function(){if(!document.hidden){tick();if(tab==='home')render();syncNativeSoon()}});
+
+applyTheme();render();tick();setInterval(tick,10000);syncNativeSoon();
+})();
+</script>
+
+</body></html>
